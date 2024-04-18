@@ -3,6 +3,17 @@
     <style name="Base.Theme.ChatApp" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your light theme here. -->
         <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorPrimaryVariant">@color/primary_color</item>
+        <item name="colorOnPrimary">@color/primary_color</item>
+
+        <item name="colorSecondary">@color/second_color</item>
+        <item name="colorSecondaryVariant">@color/second_color</item>
+        <item name="colorOnSecondary">@color/second_color</item>
+
+        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+
+        <item name="android:windowBackground">@color/off_white</item>
     </style>
 
     <style name="Theme.ChatApp" parent="Base.Theme.ChatApp" />
