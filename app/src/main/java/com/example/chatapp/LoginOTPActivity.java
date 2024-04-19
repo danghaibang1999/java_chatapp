@@ -7,29 +7,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.chatapp.util.AndroidUtil;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.Firebase;
 import com.google.firebase.FirebaseException;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.PhoneAuthCredential;
 import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
-import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class LoginOTPActivity extends AppCompatActivity {
@@ -64,9 +58,16 @@ public class LoginOTPActivity extends AppCompatActivity {
             signIn(credential);
             setInProgress(true);
         });
+
+        resendOtpTextView.setOnClickListener(v -> {
+            sendOtp(phoneNumber, true);
+            timeoutSeconds = 60L;
+            startResendTimer();
+        });
     }
 
     private void sendOtp(String phoneNumber, boolean isResend) {
+        startResendTimer();
         setInProgress(true);
         PhoneAuthOptions.Builder builder = PhoneAuthOptions.newBuilder(mAuth)
                 .setPhoneNumber(phoneNumber)
@@ -125,5 +126,25 @@ public class LoginOTPActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    void startResendTimer() {
+        resendOtpTextView.setEnabled(false);
+        Timer timer = new Timer();
+        timer.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(() -> {
+                    if (timeoutSeconds > 0) {
+                        timeoutSeconds--;
+                        resendOtpTextView.setText("Resend OTP in " + timeoutSeconds + " seconds");
+                    } else {
+                        resendOtpTextView.setText("Resend OTP");
+                        resendOtpTextView.setEnabled(true);
+                        timer.cancel();
+                    }
+                });
+            }
+        }, 0, 1000);
     }
 }
