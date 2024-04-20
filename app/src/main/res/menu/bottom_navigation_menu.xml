@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item android:title="Chats"
-        android:icon="@drawable/chat_icon"
+        android:icon="@drawable/chat_navigation_icon"
         android:id="@+id/menu_chat"/>
 
     <item android:title="Calls"
-        android:icon="@drawable/call_icon"
+        android:icon="@drawable/call_navigation_icon"
         android:id="@+id/menu_call"/>
 
     <item android:title="Contacts"
