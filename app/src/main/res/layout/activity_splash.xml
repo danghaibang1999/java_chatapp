@@ -17,7 +17,7 @@
         <ImageView
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:src="@drawable/chat_icon">
+            android:src="@drawable/icon">
         </ImageView>
         <TextView
             android:layout_width="wrap_content"
@@ -26,7 +26,8 @@
             android:textSize="40sp"
             android:textStyle="bold"
             android:fontFamily="monospace"
-            android:layout_marginTop="20dp">
+            android:layout_marginTop="20dp"
+            android:textColor="@color/blue">
         </TextView>
         <ProgressBar
             android:layout_width="32dp"
