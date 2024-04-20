@@ -10,9 +10,6 @@ import android.widget.ProgressBar;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.FirebaseUtil;
@@ -54,9 +51,9 @@ public class LoginUserNameActivity extends AppCompatActivity {
         }
         setInProgress(true);
         if (userModel == null) {
-            userModel = new UserModel(phoneNumber, userName, Timestamp.now());
+            userModel = new UserModel(phoneNumber, userName, Timestamp.now(), FirebaseUtil.currentUserUid());
         } else {
-            userModel.setUserName(userName);
+            userModel.setUsername(userName);
         }
 
         FirebaseUtil.currentUserDetails().set(userModel).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -82,7 +79,7 @@ public class LoginUserNameActivity extends AppCompatActivity {
                 if (task.isSuccessful()) {
                     userModel = task.getResult().toObject(UserModel.class);
                     if (userModel != null) {
-                        userNameInput.setText(userModel.getUserName());
+                        userNameInput.setText(userModel.getUsername());
                     }
                 }
             }
