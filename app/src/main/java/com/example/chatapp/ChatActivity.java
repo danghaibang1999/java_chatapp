@@ -3,6 +3,7 @@ package com.example.chatapp;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -35,6 +36,7 @@ public class ChatActivity extends AppCompatActivity {
     ImageButton backButton;
     TextView otherUserName;
     RecyclerView recyclerView;
+    ImageView profilePic;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +50,14 @@ public class ChatActivity extends AppCompatActivity {
         backButton = findViewById(R.id.back_btn);
         otherUserName = findViewById(R.id.other_username);
         recyclerView = findViewById(R.id.chat_recycler_view);
+        profilePic = findViewById(R.id.profile_pic_image_view);
+
+        FirebaseUtil.getOtherProfilePicStorageRef(otherUser.getUserId()).getDownloadUrl()
+                .addOnCompleteListener(t -> {
+                    if (t.isSuccessful()) {
+                        AndroidUtil.setProfilePic(this, t.getResult(), profilePic);
+                    }
+                });
 
         backButton.setOnClickListener((v -> {
             onBackPressed();
@@ -56,9 +66,8 @@ public class ChatActivity extends AppCompatActivity {
 
         sendMessageButton.setOnClickListener(v -> {
             String message = messageInput.getText().toString().trim();
+            messageInput.setText("");
             if (message.isEmpty()) {
-                // Send message
-                messageInput.setText("");
                 return;
             }
             sendMessageToUser(message);
@@ -97,6 +106,7 @@ public class ChatActivity extends AppCompatActivity {
         // Send message to user
         chatroomModel.setLastMessageTime(Timestamp.now());
         chatroomModel.setLastMessageSenderId(FirebaseUtil.currentUserUid());
+        chatroomModel.setLastMessage(message);
         FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel);
 
         ChatMessageModel chatMessageModel = new ChatMessageModel(message, FirebaseUtil.currentUserUid(), Timestamp.now());
@@ -104,9 +114,7 @@ public class ChatActivity extends AppCompatActivity {
         FirebaseUtil.getChatroomMessagesReference(chatroomId).add(chatMessageModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
             public void onComplete(@NonNull Task<DocumentReference> task) {
-                if (task.isSuccessful()) {
-                    messageInput.setText("");
-                } else {
+                if (!task.isSuccessful()) {
                     AndroidUtil.showToast(ChatActivity.this, "Failed to send message");
                 }
             }

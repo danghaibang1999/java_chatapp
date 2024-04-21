@@ -6,24 +6,69 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChatFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.example.chatapp.adapter.RecentChatRecyclerAdapter;
+import com.example.chatapp.models.ChatroomModel;
+import com.example.chatapp.util.FirebaseUtil;
+import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.google.firebase.firestore.Query;
+
 public class ChatFragment extends Fragment {
 
+    RecyclerView recyclerView;
+    RecentChatRecyclerAdapter recentChatRecyclerAdapter;
 
-    public static ChatFragment newInstance(String param1, String param2) {
-
-        return null;
+    public ChatFragment() {
+        // Required empty public constructor
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_chat, container, false);
+        View view = inflater.inflate(R.layout.fragment_chat, container, false);
+        recyclerView = view.findViewById(R.id.recycler_view_chat);
+        setupRecyclerView();
+        return view;
+    }
+
+    void setupRecyclerView() {
+
+        Query query = FirebaseUtil.allChatroomCollectionReference()
+                .whereArrayContains("userIds", FirebaseUtil.currentUserUid())
+                .orderBy("lastMessageTime", Query.Direction.DESCENDING);
+
+        FirestoreRecyclerOptions<ChatroomModel> options = new FirestoreRecyclerOptions.Builder<ChatroomModel>().setQuery(query, ChatroomModel.class).build();
+
+        recentChatRecyclerAdapter = new RecentChatRecyclerAdapter(options, getContext());
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(recentChatRecyclerAdapter);
+        recentChatRecyclerAdapter.startListening();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if (recentChatRecyclerAdapter != null) {
+            recentChatRecyclerAdapter.startListening();
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (recentChatRecyclerAdapter != null) {
+            recentChatRecyclerAdapter.stopListening();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (recentChatRecyclerAdapter != null) {
+            recentChatRecyclerAdapter.notifyDataSetChanged();
+        }
     }
 }

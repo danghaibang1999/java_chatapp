@@ -9,6 +9,15 @@ public class ChatroomModel {
     List<String> userIds;
     Timestamp lastMessageTime;
     String lastMessageSenderId;
+    String lastMessage;
+
+    public String getLastMessage() {
+        return lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
 
     public ChatroomModel() {
         // Required empty public constructor
