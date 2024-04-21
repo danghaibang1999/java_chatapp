@@ -1,4 +1,11 @@
 package com.example.chatapp;
 
-public class FCMNotificationService {
+import com.google.firebase.messaging.FirebaseMessagingService;
+import com.google.firebase.messaging.RemoteMessage;
+
+public class FCMNotificationService extends FirebaseMessagingService {
+    @Override
+    public void onMessageReceived(RemoteMessage remoteMessage) {
+        super.onMessageReceived(remoteMessage);
+    }
 }
