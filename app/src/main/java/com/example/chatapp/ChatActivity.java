@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.adapter.ChatRecyclerAdapter;
-import com.example.chatapp.adapter.SearchUserRecyclerAdapter;
 import com.example.chatapp.models.ChatMessageModel;
 import com.example.chatapp.models.ChatroomModel;
 import com.example.chatapp.models.UserModel;
