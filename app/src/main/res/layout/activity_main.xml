@@ -34,6 +34,7 @@
             android:textColor="@color/white"
             android:layout_marginStart="10dp"
             android:layout_centerVertical="true"
+            android:id="@+id/main_toolbar_title"
             android:layout_toRightOf="@+id/main_menu_btn"/>
 
         <ImageButton

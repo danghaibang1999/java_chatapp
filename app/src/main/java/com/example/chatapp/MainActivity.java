@@ -2,8 +2,8 @@ package com.example.chatapp;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,6 +19,7 @@ public class MainActivity extends AppCompatActivity {
     SettingFragment settingFragment;
     CallFragment callFragment;
     ContactFragment contactFragment;
+    TextView mainToolbarTitle;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +32,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         searchButton = findViewById(R.id.main_search_btn);
+        mainToolbarTitle = findViewById(R.id.main_toolbar_title);
 
         searchButton.setOnClickListener((v -> {
             startActivity(new Intent(MainActivity.this, SearchUserActivity.class));
@@ -46,10 +48,15 @@ public class MainActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.menu_contact) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, contactFragment).commit();
             }
+            mainToolbarTitle.setText(item.getTitle());
+            if (item.getItemId() == R.id.menu_chat) {
+                searchButton.setVisibility(searchButton.VISIBLE);
+            } else {
+                searchButton.setVisibility(searchButton.GONE);
+            }
             return true;
         });
         bottomNavigationView.setSelectedItemId(R.id.menu_chat);
-
         getFCMTokens();
     }
 
