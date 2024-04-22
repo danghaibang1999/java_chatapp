@@ -57,4 +57,5 @@ dependencies {
     implementation ("com.github.dhaval2404:imagepicker:2.1")
     implementation ("com.github.bumptech.glide:glide:4.16.0")
     implementation("com.google.firebase:firebase-messaging")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }

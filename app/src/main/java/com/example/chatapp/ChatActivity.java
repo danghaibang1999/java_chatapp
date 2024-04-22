@@ -24,7 +24,16 @@ import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
 
+import org.json.JSONObject;
+
 import java.util.Arrays;
+
+import okhttp3.Callback;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+
 public class ChatActivity extends AppCompatActivity {
 
     UserModel otherUser;
@@ -116,6 +125,8 @@ public class ChatActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<DocumentReference> task) {
                 if (!task.isSuccessful()) {
                     AndroidUtil.showToast(ChatActivity.this, "Failed to send message");
+                } else {
+                    sendNotificationToUser(message);
                 }
             }
         });
@@ -134,6 +145,55 @@ public class ChatActivity extends AppCompatActivity {
                 FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel);
             } else {
                 AndroidUtil.showToast(this, "Failed to get chatroom");
+            }
+        });
+    }
+
+    private void sendNotificationToUser(String message) {
+        // Send notification to user
+        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                UserModel currentUser = task.getResult().toObject(UserModel.class);
+                try {
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject notification = new JSONObject();
+                    notification.put("title", currentUser.getUsername());
+                    notification.put("body", message);
+                    JSONObject data = new JSONObject();
+                    data.put("userId", currentUser.getUserId());
+                    jsonObject.put("notification", notification);
+                    jsonObject.put("data", data);
+                    jsonObject.put("to", otherUser.getFcmToken());
+                    callApi(jsonObject);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    void callApi(JSONObject jsonObject) {
+        MediaType JSON = MediaType.get("application/json");
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://fcm.googleapis.com/fcm/send";
+        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .addHeader("Authorization", "Bearer AAAASz5-HW0:APA91bErWMpjmi8PMHTI-f4SYE9BJKfQ8l40eBt_rKnW46bHeo8kB2thswsbV1h4X0evhoupi22BSQNuROXPBAsa5WonIGioWzYGhg5K0uKpauFbkHinIKgLTubSsc6pbeMxLk60ybKP")
+                .build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, java.io.IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
+                if (response.isSuccessful()) {
+                    String myResponse = response.body().string();
+                    System.out.println(myResponse);
+                }
             }
         });
     }

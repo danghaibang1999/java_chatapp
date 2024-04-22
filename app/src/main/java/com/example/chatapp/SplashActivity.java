@@ -10,6 +10,8 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.chatapp.models.UserModel;
+import com.example.chatapp.util.AndroidUtil;
 import com.example.chatapp.util.FirebaseUtil;
 
 public class SplashActivity extends AppCompatActivity {
@@ -17,24 +19,38 @@ public class SplashActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_splash);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
 
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (FirebaseUtil.isUserLoggedIn()) {
-                    startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                } else {
-                    startActivity(new Intent(SplashActivity.this, LoginPhoneNumberActivity.class));
+        if (getIntent().getExtras() != null) {
+            String userId = getIntent().getExtras().getString("userId");
+            FirebaseUtil.allUserCollectionReference().document(userId).get().addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    UserModel userModel = task.getResult().toObject(UserModel.class);
+
+                    Intent mainIntent = new Intent(this, MainActivity.class);
+                    mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+
+                    Intent intent = new Intent(this, ChatActivity.class);
+                    AndroidUtil.passUserModelAsIntent(intent, userModel);
+
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    finish();
                 }
-                finish();
-            }
-        }, 1000);
+            });
+        } else {
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    if (FirebaseUtil.isUserLoggedIn()) {
+                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                    } else {
+                        startActivity(new Intent(SplashActivity.this, LoginPhoneNumberActivity.class));
+                    }
+                    finish();
+                }
+            }, 1000);
+        }
+
     }
 }

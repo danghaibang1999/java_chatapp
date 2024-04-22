@@ -19,6 +19,7 @@ public class AndroidUtil {
         intent.putExtra("username", userModel.getUsername());
         intent.putExtra("phone", userModel.getPhone());
         intent.putExtra("userId", userModel.getUserId());
+        intent.putExtra("fcmToken", userModel.getFcmToken());
     }
 
     public static UserModel getUserModelAsIntent(Intent intent) {
@@ -26,6 +27,7 @@ public class AndroidUtil {
         userModel.setUsername(intent.getStringExtra("username"));
         userModel.setPhone(intent.getStringExtra("phone"));
         userModel.setUserId(intent.getStringExtra("userId"));
+        userModel.setFcmToken(intent.getStringExtra("fcmToken"));
         return  userModel;
     }
 
