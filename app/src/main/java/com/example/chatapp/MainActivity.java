@@ -1,7 +1,9 @@
 package com.example.chatapp;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
@@ -35,6 +37,15 @@ public class MainActivity extends AppCompatActivity {
         searchButton = findViewById(R.id.main_search_btn);
         groupButton = findViewById(R.id.group_add_btn);
         mainToolbarTitle = findViewById(R.id.main_toolbar_title);
+
+        final Dialog dialog = new Dialog(this);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setCancelable(true);
+        dialog.setContentView(R.layout.dialog_group_add);
+
+        groupButton.setOnClickListener(v -> {
+            dialog.show();
+        });
 
         searchButton.setOnClickListener((v -> {
             startActivity(new Intent(MainActivity.this, SearchUserActivity.class));
