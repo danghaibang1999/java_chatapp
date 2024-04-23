@@ -1,20 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:title="Chats"
+    <item
+        android:id="@+id/menu_chat"
         android:icon="@drawable/chat_navigation_icon"
-        android:id="@+id/menu_chat"/>
+        android:title="Chats" />
 
-    <item android:title="Calls"
+    <item
+        android:id="@+id/menu_call"
         android:icon="@drawable/call_navigation_icon"
-        android:id="@+id/menu_call"/>
+        android:title="Calls" />
 
-    <item android:title="People"
+    <item
+        android:id="@+id/menu_contact"
         android:icon="@drawable/contact_icon"
-        android:id="@+id/menu_contact"/>
+        android:title="People" />
 
-    <item android:title="Profile"
+    <item
+        android:id="@+id/menu_settings"
         android:icon="@drawable/setting_icon"
-        android:id="@+id/menu_settings"/>
+        android:title="Profile" />
 
 </menu>

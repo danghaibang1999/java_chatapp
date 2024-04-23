@@ -23,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
     CallFragment callFragment;
     ContactFragment contactFragment;
     TextView mainToolbarTitle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +43,6 @@ public class MainActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
         dialog.setContentView(R.layout.dialog_group_add);
-
         groupButton.setOnClickListener(v -> {
             dialog.show();
         });

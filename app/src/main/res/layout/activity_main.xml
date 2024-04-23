@@ -7,79 +7,79 @@
     tools:context=".MainActivity">
 
     <RelativeLayout
+        android:id="@+id/main_toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary_color"
-        android:padding="10dp"
-        android:id="@+id/main_toolbar">
+        android:padding="10dp">
 
         <ImageButton
+            android:id="@+id/main_menu_btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/main_menu_icon"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
             android:background="@drawable/circular_bg"
             android:backgroundTint="@color/off_white"
             android:padding="4dp"
-            android:layout_centerVertical="true"
-            app:tint="@color/black"
-            android:layout_alignParentLeft="true"
-            android:id="@+id/main_menu_btn"/>
+            android:src="@drawable/main_menu_icon"
+            app:tint="@color/black" />
 
         <TextView
+            android:id="@+id/main_toolbar_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Chats"
-            android:textSize="22sp"
-            android:textStyle="bold"
-            android:textColor="@color/white"
-            android:layout_marginStart="10dp"
             android:layout_centerVertical="true"
-            android:id="@+id/main_toolbar_title"
-            android:layout_toRightOf="@+id/main_menu_btn"/>
+            android:layout_marginStart="10dp"
+            android:layout_toRightOf="@+id/main_menu_btn"
+            android:text="Chats"
+            android:textColor="@color/white"
+            android:textSize="22sp"
+            android:textStyle="bold" />
 
         <ImageButton
+            android:id="@+id/main_search_btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/search_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_centerVertical="true"
             android:layout_marginRight="10dp"
-            app:tint="@color/white"
-            android:id="@+id/main_search_btn"
-            android:layout_toLeftOf="@+id/group_add_btn"/>
+            android:layout_toLeftOf="@+id/group_add_btn"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/search_icon"
+            app:tint="@color/white" />
 
         <ImageButton
+            android:id="@+id/group_add_btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
-            android:src="@drawable/group_add_icon"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
-            app:tint="@color/white"
-            android:id="@+id/group_add_btn"
-            android:layout_marginEnd="10dp"/>
+            android:layout_marginEnd="10dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/group_add_icon"
+            app:tint="@color/white" />
 
     </RelativeLayout>
 
     <FrameLayout
+        android:id="@+id/main_frame_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/main_toolbar"
         android:layout_above="@id/divider"
-        android:id="@+id/main_frame_layout"/>
+        android:layout_below="@id/main_toolbar" />
 
     <com.google.android.material.divider.MaterialDivider
+        android:id="@+id/divider"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:layout_above="@id/bottom_navigation"
-        android:id="@+id/divider"/>
+        android:layout_above="@id/bottom_navigation" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:id="@+id/bottom_navigation"
         android:background="?attr/selectableItemBackgroundBorderless"
-        app:menu="@menu/bottom_navigation_menu"/>
+        app:menu="@menu/bottom_navigation_menu" />
 
 </RelativeLayout>

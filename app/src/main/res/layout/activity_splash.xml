@@ -16,33 +16,31 @@
         <ImageView
             android:layout_width="160dp"
             android:layout_height="160dp"
-            android:src="@drawable/icon">
-        </ImageView>
+            android:src="@drawable/icon"></ImageView>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/app_name"
-            android:textSize="40sp"
-            android:textStyle="bold"
-            android:fontFamily="monospace"
             android:layout_marginTop="20dp"
-            android:textColor="@color/blue">
-        </TextView>
+            android:fontFamily="monospace"
+            android:text="@string/app_name"
+            android:textColor="@color/blue"
+            android:textSize="40sp"
+            android:textStyle="bold"></TextView>
+
         <ProgressBar
             android:layout_width="32dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="32dp">
-        </ProgressBar>
+            android:layout_marginTop="32dp"></ProgressBar>
     </LinearLayout>
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Developed by Group 5 - BKHCM"
         android:layout_alignParentBottom="true"
-        android:gravity="center"
         android:layout_marginBottom="20dp"
-        android:textColor="@color/off_white">
-    </TextView>
+        android:gravity="center"
+        android:text="Developed by Group 5 - BKHCM"
+        android:textColor="@color/off_white"></TextView>
 
 </RelativeLayout>

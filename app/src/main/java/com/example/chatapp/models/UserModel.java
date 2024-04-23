@@ -9,14 +9,6 @@ public class UserModel {
     private String userId;
     private String fcmToken;
 
-    public String getFcmToken() {
-        return fcmToken;
-    }
-
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
-    }
-
     public UserModel() {
     }
 
@@ -27,8 +19,20 @@ public class UserModel {
         this.userId = userId;
     }
 
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
+    }
+
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getUserId() {
@@ -37,10 +41,6 @@ public class UserModel {
 
     public void setUserId(String userId) {
         this.userId = userId;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
     }
 
     public String getUsername() {

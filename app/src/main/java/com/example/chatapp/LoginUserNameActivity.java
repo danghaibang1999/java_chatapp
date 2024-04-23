@@ -25,6 +25,7 @@ public class LoginUserNameActivity extends AppCompatActivity {
     ProgressBar progressBar;
     String phoneNumber;
     UserModel userModel;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

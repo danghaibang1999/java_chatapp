@@ -18,6 +18,7 @@ public class LoginPhoneNumberActivity extends AppCompatActivity {
     EditText phoneInput;
     Button sendOTPBtn;
     ProgressBar progressBar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

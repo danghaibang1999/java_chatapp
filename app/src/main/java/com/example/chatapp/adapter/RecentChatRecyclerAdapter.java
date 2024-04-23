@@ -23,6 +23,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatroomModel, RecentChatRecyclerAdapter.ChatroomModelViewHolder> {
 
     Context context;
+
     public RecentChatRecyclerAdapter(@NonNull FirestoreRecyclerOptions<ChatroomModel> options, Context context) {
         super(options);
         this.context = context;
@@ -45,10 +46,14 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
                                 });
 
                         holder.usernameText.setText(otherUser.getUsername());
+                        String lastMessage = model.getLastMessage();
+                        if (lastMessage.length() > 30) {
+                            lastMessage = lastMessage.substring(0, 30) + "...";
+                        }
                         if (lastMessageSenderIdIsCurrentUser) {
-                            holder.lastMessageText.setText("You: " + model.getLastMessage());
+                            holder.lastMessageText.setText("You: " + lastMessage);
                         } else {
-                            holder.lastMessageText.setText(model.getLastMessage());
+                            holder.lastMessageText.setText(lastMessage);
                         }
                         holder.lastMessageTime.setText(FirebaseUtil.timestampToString(model.getLastMessageTime()));
 
@@ -59,7 +64,7 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
                             context.startActivity(intent);
                         }));
                     }
-        });
+                });
     }
 
     @NonNull

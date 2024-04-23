@@ -3,80 +3,79 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".SettingFragment"
-    android:orientation="vertical"
+    android:layout_margin="20dp"
     android:gravity="center"
-    android:layout_margin="20dp">
+    android:orientation="vertical"
+    tools:context=".SettingFragment">
 
     <ImageView
+        android:id="@+id/profile_image_view"
         android:layout_width="160dp"
         android:layout_height="160dp"
+        android:layout_marginBottom="40dp"
         android:background="@drawable/circular_bg"
         android:backgroundTint="@color/primary_color"
-        android:src="@drawable/person_icon"
         android:scaleType="centerCrop"
-        android:layout_marginBottom="40dp"
-        android:id="@+id/profile_image_view"/>
+        android:src="@drawable/person_icon" />
 
     <EditText
+        android:id="@+id/profile_username"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
+        android:layout_margin="10dp"
+        android:background="@drawable/edit_text_rounded_corner"
+        android:elevation="5dp"
         android:hint="Username"
         android:inputType="text"
-        android:layout_margin="10dp"
-        android:background="@drawable/edit_text_rounded_corner"
-        android:elevation="5dp"
-        android:id="@+id/profile_username"/>
+        android:padding="10dp" />
 
     <EditText
+        android:id="@+id/profile_phone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="10dp"
-        android:hint="Phone"
-        android:inputType="phone"
-        android:enabled="false"
         android:layout_margin="10dp"
         android:background="@drawable/edit_text_rounded_corner"
         android:elevation="5dp"
-        android:id="@+id/profile_phone"/>
+        android:enabled="false"
+        android:hint="Phone"
+        android:inputType="phone"
+        android:padding="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:gravity="center_vertical"
         android:layout_marginTop="20dp"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/profile_update_btn"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="UPDATE PROFILE"
-            android:textColor="@color/white"
             android:background="@drawable/button_rounded_corner"
-            android:id="@+id/profile_update_btn">
+            android:text="UPDATE PROFILE"
+            android:textColor="@color/white">
 
         </Button>
 
         <ProgressBar
+            android:id="@+id/login_progress_bar"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
             android:layout_weight="10"
-            android:indeterminateTint="@color/primary_color"
-            android:id="@+id/login_progress_bar">
-        </ProgressBar>
+            android:indeterminateTint="@color/primary_color"></ProgressBar>
     </LinearLayout>
 
     <TextView
+        android:id="@+id/logout_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Logout"
         android:layout_marginTop="20dp"
+        android:text="Logout"
         android:textColor="@color/primary_color"
-        android:textSize="20sp"
-        android:id="@+id/logout_btn"/>
+        android:textSize="20sp" />
 
 
 </LinearLayout>

@@ -2,37 +2,39 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/edit_text_rounded_corner"
-    android:layout_marginTop="1dp"
     android:layout_marginLeft="10dp"
+    android:layout_marginTop="1dp"
     android:layout_marginRight="10dp"
     android:layout_marginBottom="1dp"
+    android:background="@drawable/edit_text_rounded_corner"
     android:elevation="2dp">
 
-    <include layout="@layout/profile_pic_view"
+    <include
+        layout="@layout/profile_pic_view"
         android:layout_width="52dp"
         android:layout_height="52dp"
         android:layout_gravity="center"
-        android:layout_margin="10dp"/>
+        android:layout_margin="10dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:layout_gravity="center">
+        android:layout_gravity="center"
+        android:orientation="vertical">
 
         <TextView
+            android:id="@+id/user_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="User Name"
             android:textSize="18sp"
-            android:textStyle="bold"
-            android:id="@+id/user_name_text"/>
+            android:textStyle="bold" />
+
         <TextView
+            android:id="@+id/user_name_phone"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="+0000000000000"
-            android:id="@+id/user_name_phone"/>
+            android:text="+0000000000000" />
 
     </LinearLayout>
 

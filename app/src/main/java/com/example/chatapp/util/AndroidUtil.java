@@ -11,7 +11,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.example.chatapp.models.UserModel;
 
 public class AndroidUtil {
-    public static void showToast (Context context, String message) {
+    public static void showToast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
     }
 
@@ -28,7 +28,7 @@ public class AndroidUtil {
         userModel.setPhone(intent.getStringExtra("phone"));
         userModel.setUserId(intent.getStringExtra("userId"));
         userModel.setFcmToken(intent.getStringExtra("fcmToken"));
-        return  userModel;
+        return userModel;
     }
 
     public static void setProfilePic(Context context, Uri imageUri, ImageView imageView) {

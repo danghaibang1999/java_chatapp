@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
     android:layout_margin="20dp"
+    android:gravity="center"
+    android:orientation="vertical"
     android:weightSum="100"
     tools:context=".LoginPhoneNumberActivity">
 
@@ -26,12 +26,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="18sp"
+                android:layout_centerInParent="true"
                 android:text="1"
-                android:layout_centerInParent="true">
-            </TextView>
+                android:textColor="@color/white"
+                android:textSize="18sp"></TextView>
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="32dp"
             android:layout_height="32dp"
@@ -42,12 +42,12 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="18sp"
+                android:layout_centerInParent="true"
                 android:text="2"
-                android:layout_centerInParent="true">
-            </TextView>
+                android:textColor="@color/white"
+                android:textSize="18sp"></TextView>
         </RelativeLayout>
+
         <RelativeLayout
             android:layout_width="32dp"
             android:layout_height="32dp"
@@ -58,11 +58,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/white"
-                android:textSize="18sp"
+                android:layout_centerInParent="true"
                 android:text="3"
-                android:layout_centerInParent="true">
-            </TextView>
+                android:textColor="@color/white"
+                android:textSize="18sp"></TextView>
 
         </RelativeLayout>
 
@@ -73,74 +72,68 @@
         android:layout_height="100dp"
         android:layout_weight="20"
         android:src="@drawable/phone_icon"
-        app:tint="@color/primary_color">
-    </ImageView>
+        app:tint="@color/primary_color"></ImageView>
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Enter mobile numbers"
         android:layout_gravity="center"
-        android:gravity="center"
         android:layout_weight="5"
+        android:gravity="center"
         android:letterSpacing="0.08"
+        android:text="Enter mobile numbers"
         android:textColor="@color/black"
-        android:textSize="25sp">
-    </TextView>
+        android:textSize="25sp"></TextView>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_weight="20"
-        android:gravity="center">
+        android:gravity="center"
+        android:orientation="horizontal">
 
         <com.hbb20.CountryCodePicker
+            android:id="@+id/login_country_code"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:ccp_showFlag="false"
-            app:ccp_showNameCode="false"
-            android:id="@+id/login_country_code"/>
+            app:ccp_showNameCode="false" />
 
         <EditText
+            android:id="@+id/login_mobile_numbers"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:hint="Phone numbers"
-            android:inputType="phone"
             android:background="@drawable/edit_text_rounded_corner"
             android:elevation="5dp"
-            android:id="@+id/login_mobile_numbers">
-        </EditText>
+            android:hint="Phone numbers"
+            android:inputType="phone"
+            android:padding="10dp"></EditText>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:gravity="center_vertical"
         android:layout_weight="10"
+        android:gravity="center_vertical"
         android:orientation="vertical">
 
         <Button
+            android:id="@+id/send_otp_btn"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textColor="@color/white"
-            android:text="SEND OTP"
             android:background="@drawable/button_rounded_corner"
-            android:id="@+id/send_otp_btn">
-        </Button>
+            android:text="SEND OTP"
+            android:textColor="@color/white"></Button>
 
         <ProgressBar
+            android:id="@+id/login_progress_bar"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_gravity="center"
             android:layout_weight="10"
-            android:indeterminateTint="@color/primary_color"
-            android:id="@+id/login_progress_bar">
-        </ProgressBar>
+            android:indeterminateTint="@color/primary_color"></ProgressBar>
     </LinearLayout>
-
 
 
 </LinearLayout>
