@@ -15,6 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
     ImageButton searchButton;
+    ImageButton groupButton;
     ChatFragment chatFragment;
     SettingFragment settingFragment;
     CallFragment callFragment;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         searchButton = findViewById(R.id.main_search_btn);
+        groupButton = findViewById(R.id.group_add_btn);
         mainToolbarTitle = findViewById(R.id.main_toolbar_title);
 
         searchButton.setOnClickListener((v -> {
@@ -51,8 +53,10 @@ public class MainActivity extends AppCompatActivity {
             mainToolbarTitle.setText(item.getTitle());
             if (item.getItemId() == R.id.menu_chat) {
                 searchButton.setVisibility(searchButton.VISIBLE);
+                groupButton.setVisibility(groupButton.VISIBLE);
             } else {
                 searchButton.setVisibility(searchButton.GONE);
+                groupButton.setVisibility(groupButton.GONE);
             }
             return true;
         });

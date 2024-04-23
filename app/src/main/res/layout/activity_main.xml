@@ -42,10 +42,21 @@
             android:layout_height="32dp"
             android:src="@drawable/search_icon"
             android:background="?attr/selectableItemBackgroundBorderless"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            app:tint="@color/white"
+            android:id="@+id/main_search_btn"
+            android:layout_toLeftOf="@+id/group_add_btn"/>
+
+        <ImageButton
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/group_add_icon"
+            android:background="?attr/selectableItemBackgroundBorderless"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true"
             app:tint="@color/white"
-            android:id="@+id/main_search_btn"
+            android:id="@+id/group_add_btn"
             android:layout_marginEnd="10dp"/>
 
     </RelativeLayout>
