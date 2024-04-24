@@ -20,7 +20,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton groupButton;
     ChatFragment chatFragment;
     SettingFragment settingFragment;
-    CallFragment callFragment;
+    GroupChatFragment groupFragment;
     ContactFragment contactFragment;
     TextView mainToolbarTitle;
 
@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
         chatFragment = new ChatFragment();
         settingFragment = new SettingFragment();
-        callFragment = new CallFragment();
+        groupFragment = new GroupChatFragment();
         contactFragment = new ContactFragment();
 
         bottomNavigationView = findViewById(R.id.bottom_navigation);
@@ -54,10 +54,10 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.menu_chat) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, chatFragment).commit();
-            } else if (item.getItemId() == R.id.menu_settings) {
+            } else if (item.getItemId() == R.id.profile_settings) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, settingFragment).commit();
-            } else if (item.getItemId() == R.id.menu_call) {
-                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, callFragment).commit();
+            } else if (item.getItemId() == R.id.menu_group_chat) {
+                getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, groupFragment).commit();
             } else if (item.getItemId() == R.id.menu_contact) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, contactFragment).commit();
             }
