@@ -8,7 +8,7 @@
         android:id="@+id/left_icon_chat"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_alignBottom="@id/text_left_chat_layout"
+        android:layout_centerVertical="true"
         android:layout_marginRight="2dp"
         android:background="@drawable/circular_bg"
         android:backgroundTint="@color/off_white"
@@ -53,10 +53,10 @@
 
     <LinearLayout
         android:id="@+id/image_right_chat_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="80dp"
-        android:layout_toRightOf="@+id/left_icon_chat"
+        android:layout_width="256dp"
+        android:layout_height="256dp"
+        android:layout_marginStart="80dp"
+        android:layout_toLeftOf="@+id/right_icon_chat"
         android:orientation="vertical"
         android:padding="8dp">
 
@@ -68,7 +68,7 @@
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/right_chat_layout"
+        android:id="@+id/text_right_chat_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="80dp"
@@ -90,8 +90,8 @@
         android:id="@+id/right_icon_chat"
         android:layout_width="32dp"
         android:layout_height="32dp"
-        android:layout_alignBottom="@+id/right_chat_layout"
         android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
         android:layout_marginLeft="2dp"
         android:background="@drawable/circular_bg"
         android:backgroundTint="@color/off_white"
