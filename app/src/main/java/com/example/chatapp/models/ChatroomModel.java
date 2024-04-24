@@ -10,6 +10,7 @@ public class ChatroomModel {
     Timestamp lastMessageTime;
     String lastMessageSenderId;
     String lastMessage;
+    String lastMessageTypeName;
 
     public ChatroomModel() {
         // Required empty public constructor
@@ -20,6 +21,14 @@ public class ChatroomModel {
         this.userIds = userIds;
         this.lastMessageTime = lastMessageTime;
         this.lastMessageSenderId = lastMessageSenderId;
+    }
+
+    public String getLastMessageTypeName() {
+        return lastMessageTypeName;
+    }
+
+    public void setLastMessageTypeName(String lastMessageTypeName) {
+        this.lastMessageTypeName = lastMessageTypeName;
     }
 
     public String getLastMessage() {

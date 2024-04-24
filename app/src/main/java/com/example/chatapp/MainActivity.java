@@ -19,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     ImageButton searchButton;
     ImageButton groupButton;
     ChatFragment chatFragment;
-    SettingFragment settingFragment;
+    ProfileSettingFragment settingFragment;
     GroupChatFragment groupFragment;
     ContactFragment contactFragment;
     TextView mainToolbarTitle;
@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         chatFragment = new ChatFragment();
-        settingFragment = new SettingFragment();
+        settingFragment = new ProfileSettingFragment();
         groupFragment = new GroupChatFragment();
         contactFragment = new ContactFragment();
 

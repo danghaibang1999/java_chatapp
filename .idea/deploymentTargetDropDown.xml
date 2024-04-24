@@ -9,13 +9,13 @@
               <type value="RUNNING_DEVICE_TARGET" />
               <deviceKey>
                 <Key>
-                  <type value="VIRTUAL_DEVICE_PATH" />
-                  <value value="C:\Users\admin\.android\avd\Pixel_8_Pro_API_VanillaIceCream.avd" />
+                  <type value="SERIAL_NUMBER" />
+                  <value value="89a84c5c" />
                 </Key>
               </deviceKey>
             </Target>
           </runningDeviceTargetSelectedWithDropDown>
-          <timeTargetWasSelectedWithDropDown value="2024-04-24T15:34:36.033167700Z" />
+          <timeTargetWasSelectedWithDropDown value="2024-04-25T08:46:53.186077Z" />
           <runningDeviceTargetsSelectedWithDialog>
             <Target>
               <type value="RUNNING_DEVICE_TARGET" />

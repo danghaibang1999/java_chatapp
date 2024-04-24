@@ -7,16 +7,26 @@ public class ChatMessageModel {
     private String messageType;
     private String senderId;
     private Timestamp timestamp;
+    private String chatroomId;
 
-    public ChatMessageModel(String message, String messageType, String senderId, Timestamp timestamp) {
+    public ChatMessageModel(String chatroomId, String message, String messageType, String senderId, Timestamp timestamp) {
         this.message = message;
         this.senderId = senderId;
         this.timestamp = timestamp;
         this.messageType = messageType;
+        this.chatroomId = chatroomId;
     }
 
     public ChatMessageModel() {
         // Required empty public constructor
+    }
+
+    public String getChatroomId() {
+        return chatroomId;
+    }
+
+    public void setChatroomId(String chatroomId) {
+        this.chatroomId = chatroomId;
     }
 
     public String getMessageType() {

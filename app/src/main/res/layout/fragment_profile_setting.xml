@@ -6,7 +6,7 @@
     android:layout_margin="20dp"
     android:gravity="center"
     android:orientation="vertical"
-    tools:context=".SettingFragment">
+    tools:context=".ProfileSettingFragment">
 
     <ImageView
         android:id="@+id/profile_image_view"

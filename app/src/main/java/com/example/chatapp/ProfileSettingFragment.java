@@ -29,7 +29,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
-public class SettingFragment extends Fragment {
+public class ProfileSettingFragment extends Fragment {
 
     ImageView profileImage;
     EditText usernameInput;
@@ -42,7 +42,7 @@ public class SettingFragment extends Fragment {
     ActivityResultLauncher<Intent> imagePickerLauncher;
     Uri selectedImageUri;
 
-    public SettingFragment() {
+    public ProfileSettingFragment() {
         // Required empty public constructor
     }
 
@@ -64,7 +64,7 @@ public class SettingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_setting, container, false);
+        View view = inflater.inflate(R.layout.fragment_profile_setting, container, false);
         profileImage = view.findViewById(R.id.profile_image_view);
         usernameInput = view.findViewById(R.id.profile_username);
         phoneInput = view.findViewById(R.id.profile_phone);
