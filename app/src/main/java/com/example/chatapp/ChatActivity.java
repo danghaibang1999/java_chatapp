@@ -79,7 +79,7 @@ public class ChatActivity extends AppCompatActivity {
             if (message.isEmpty()) {
                 return;
             }
-            sendMessageToUser(message);
+            sendMessageToUser(message, "text");
         });
 
         getOrCreateChatroomModel();
@@ -111,14 +111,14 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void sendMessageToUser(String message) {
+    private void sendMessageToUser(String message, String messageType) {
         // Send message to user
         chatroomModel.setLastMessageTime(Timestamp.now());
         chatroomModel.setLastMessageSenderId(FirebaseUtil.currentUserUid());
         chatroomModel.setLastMessage(message);
         FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel);
 
-        ChatMessageModel chatMessageModel = new ChatMessageModel(message, FirebaseUtil.currentUserUid(), Timestamp.now());
+        ChatMessageModel chatMessageModel = new ChatMessageModel(message, messageType, FirebaseUtil.currentUserUid(), Timestamp.now());
 
         FirebaseUtil.getChatroomMessagesReference(chatroomId).add(chatMessageModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override

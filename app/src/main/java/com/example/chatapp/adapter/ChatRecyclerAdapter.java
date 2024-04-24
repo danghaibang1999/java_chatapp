@@ -31,8 +31,24 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
     @Override
     protected void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position, @NonNull ChatMessageModel model) {
         if (model.getSenderId().equals(FirebaseUtil.currentUserUid())) {
-            holder.leftChatLayout.setVisibility(View.GONE);
-            holder.rightChatLayout.setVisibility(View.VISIBLE);
+            holder.textLeftChatLayout.setVisibility(View.GONE);
+            holder.imageLeftChatLayout.setVisibility(View.GONE);
+            if (model.getMessageType().equals("image")) {
+                holder.imageRightChatLayout.setVisibility(View.VISIBLE);
+                holder.textRightChatLayout.setVisibility(View.GONE);
+                FirebaseUtil.getCurrentProfilePicStorageRef().getDownloadUrl()
+                        .addOnCompleteListener(t -> {
+                            if (t.isSuccessful()) {
+                                AndroidUtil.setProfilePic(context, t.getResult(), holder.rightProfilePic);
+                            }
+                        });
+            } else if (model.getMessageType().equals("text")) {
+                holder.imageRightChatLayout.setVisibility(View.GONE);
+                holder.rightChatImageView.setVisibility(View.GONE);
+                holder.rightChatTextview.setVisibility(View.VISIBLE);
+                holder.rightChatTextview.setText(model.getMessage());
+            }
+            holder.textRightChatLayout.setVisibility(View.VISIBLE);
             holder.rightChatTextview.setText(model.getMessage());
             holder.leftProfilePic.setVisibility(View.GONE);
             holder.rightProfilePic.setVisibility(View.VISIBLE);
@@ -43,8 +59,8 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
                         }
                     });
         } else {
-            holder.rightChatLayout.setVisibility(View.GONE);
-            holder.leftChatLayout.setVisibility(View.VISIBLE);
+            holder.textRightChatLayout.setVisibility(View.GONE);
+            holder.textLeftChatLayout.setVisibility(View.VISIBLE);
             holder.leftChatTextview.setText(model.getMessage());
             holder.rightProfilePic.setVisibility(View.GONE);
             holder.leftProfilePic.setVisibility(View.VISIBLE);
@@ -67,18 +83,22 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
 
     class ChatModelViewHolder extends RecyclerView.ViewHolder {
 
-        LinearLayout leftChatLayout, rightChatLayout;
+        LinearLayout textLeftChatLayout, textRightChatLayout, imageLeftChatLayout, imageRightChatLayout;
         TextView leftChatTextview, rightChatTextview;
 
-        ImageView leftProfilePic, rightProfilePic;
+        ImageView leftProfilePic, rightProfilePic, leftChatImageView, rightChatImageView;
 
         public ChatModelViewHolder(@NonNull View itemView) {
             super(itemView);
 
-            leftChatLayout = itemView.findViewById(R.id.left_chat_layout);
-            rightChatLayout = itemView.findViewById(R.id.right_chat_layout);
+            textLeftChatLayout = itemView.findViewById(R.id.text_left_chat_layout);
+            textRightChatLayout = itemView.findViewById(R.id.right_chat_layout);
+            imageLeftChatLayout = itemView.findViewById(R.id.image_left_chat_layout);
+            imageRightChatLayout = itemView.findViewById(R.id.image_right_chat_layout);
             leftChatTextview = itemView.findViewById(R.id.left_chat_text_view);
             rightChatTextview = itemView.findViewById(R.id.right_chat_text_view);
+            leftChatImageView = itemView.findViewById(R.id.left_chat_image_view);
+            rightChatImageView = itemView.findViewById(R.id.right_chat_image_view);
             leftProfilePic = itemView.findViewById(R.id.left_icon_chat);
             rightProfilePic = itemView.findViewById(R.id.right_icon_chat);
 

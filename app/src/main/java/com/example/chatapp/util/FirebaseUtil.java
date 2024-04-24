@@ -74,4 +74,9 @@ public class FirebaseUtil {
         return FirebaseStorage.getInstance().getReference().child("profile_pics")
                 .child(otherUserId);
     }
+
+    public static StorageReference getChatroomImageStorageRef(String chatroomId, String imageId) {
+        return FirebaseStorage.getInstance().getReference().child("chatroom_images")
+                .child(chatroomId).child(imageId);
+    }
 }
