@@ -39,8 +39,4 @@ public class AndroidUtil {
     public static void setChatImage(Context context, Uri imageUrl, ImageView imageView) {
         Glide.with(context).load(imageUrl).diskCacheStrategy(DiskCacheStrategy.ALL).into(imageView);
     }
-
-    public static void setChatImage(Context context, Uri imageUrl, ImageView imageView) {
-        Glide.with(context).load(imageUrl).diskCacheStrategy(DiskCacheStrategy.ALL).into(imageView);
-    }
 }

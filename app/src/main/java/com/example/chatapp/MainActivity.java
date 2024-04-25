@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, contactFragment).commit();
             }
             mainToolbarTitle.setText(item.getTitle());
-            if (item.getItemId() == R.id.menu_chat) {
+            if (item.getItemId() == R.id.menu_chat || item.getItemId() == R.id.menu_group_chat) {
                 searchButton.setVisibility(searchButton.VISIBLE);
                 groupButton.setVisibility(groupButton.VISIBLE);
             } else {
