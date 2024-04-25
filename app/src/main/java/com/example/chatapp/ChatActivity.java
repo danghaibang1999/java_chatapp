@@ -1,5 +1,6 @@
 package com.example.chatapp;
 
+import android.Manifest;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -28,12 +29,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.Query;
+import com.permissionx.guolindev.PermissionX;
+import com.permissionx.guolindev.callback.ExplainReasonCallback;
+import com.permissionx.guolindev.callback.RequestCallback;
+import com.permissionx.guolindev.request.ExplainScope;
+import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton;
+import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -58,6 +67,8 @@ public class ChatActivity extends AppCompatActivity {
     ImageView profilePic;
     ActivityResultLauncher<Intent> imagePickerLauncher;
     Uri selectedImageUri;
+    ZegoSendCallInvitationButton voiceCallButton;
+    ZegoSendCallInvitationButton videoCallButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +84,7 @@ public class ChatActivity extends AppCompatActivity {
         otherUserName = findViewById(R.id.other_username);
         recyclerView = findViewById(R.id.chat_recycler_view);
         profilePic = findViewById(R.id.profile_pic_image_view);
+        videoCallButton = findViewById(R.id.chat_video_btn);
 
         otherUserName.setText(otherUser.getUsername());
         FirebaseUtil.getOtherProfilePicStorageRef(otherUser.getUserId()).getDownloadUrl()
@@ -81,6 +93,44 @@ public class ChatActivity extends AppCompatActivity {
                         AndroidUtil.setProfilePic(this, t.getResult(), profilePic);
                     }
                 });
+
+        voiceCallButton = findViewById(R.id.chat_call_btn);
+        voiceCallButton.setIsVideoCall(false);
+
+        //resourceID can be used to specify the ringtone of an offline call invitation,
+        //which must be set to the same value as the Push Resource ID in ZEGOCLOUD Admin Console.
+        //This only takes effect when the notifyWhenAppRunningInBackgroundOrQuit is true.
+        //        newVoiceCall.setResourceID("zegouikit_call");
+        voiceCallButton.setResourceID("zego_data");
+        voiceCallButton.setOnClickListener(v -> {
+            String targetUserID = otherUser.getUserId();
+            String[] split = targetUserID.split(",");
+            List<ZegoUIKitUser> users = new ArrayList<>();
+            for (String userID : split) {
+                String userName = otherUser.getUsername();
+                users.add(new ZegoUIKitUser(userID, userName));
+            }
+            voiceCallButton.setInvitees(users);
+        });
+
+        videoCallButton = findViewById(R.id.chat_video_btn);
+        videoCallButton.setIsVideoCall(true);
+
+        //resourceID can be used to specify the ringtone of an offline call invitation,
+        //which must be set to the same value as the Push Resource ID in ZEGOCLOUD Admin Console.
+        //This only takes effect when the notifyWhenAppRunningInBackgroundOrQuit is true.
+        //        newVoiceCall.setResourceID("zegouikit_call");
+        videoCallButton.setResourceID("zego_data");
+        videoCallButton.setOnClickListener(v -> {
+            String targetUserID = otherUser.getUserId();
+            String[] split = targetUserID.split(",");
+            List<ZegoUIKitUser> users = new ArrayList<>();
+            for (String userID : split) {
+                String userName = userID + "_name";
+                users.add(new ZegoUIKitUser(userID, userName));
+            }
+            videoCallButton.setInvitees(users);
+        });
 
         imagePickerLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
             if (result.getResultCode() == RESULT_OK) {
@@ -130,6 +180,20 @@ public class ChatActivity extends AppCompatActivity {
 
         getOrCreateChatroomModel();
         setupChatRecyclerView();
+
+        PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)
+                .onExplainRequestReason(new ExplainReasonCallback() {
+                    @Override
+                    public void onExplainReason(@NonNull ExplainScope scope, @NonNull List<String> deniedList) {
+                        String message = "We need your consent for the following permissions in order to use the offline call function properly";
+                        scope.showRequestReasonDialog(deniedList, message, "Allow", "Deny");
+                    }
+                }).request(new RequestCallback() {
+                    @Override
+                    public void onResult(boolean allGranted, @NonNull List<String> grantedList,
+                                         @NonNull List<String> deniedList) {
+                    }
+                });
     }
 
     private void setupChatRecyclerView() {
@@ -252,5 +316,4 @@ public class ChatActivity extends AppCompatActivity {
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss").format(now));
         return String.valueOf(chatroomId + '_' + id);
     }
-
 }

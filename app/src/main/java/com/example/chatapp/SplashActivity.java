@@ -16,6 +16,11 @@ public class SplashActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                MainActivity.username = task.getResult().getString("username");
+            }
+        });
 
         if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("userId")) {
             String userId = getIntent().getExtras().getString("userId");

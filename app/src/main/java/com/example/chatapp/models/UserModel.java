@@ -2,12 +2,17 @@ package com.example.chatapp.models;
 
 import com.google.firebase.Timestamp;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class UserModel {
     private String phone;
     private String username;
     private Timestamp createdTimestamp;
     private String userId;
     private String fcmToken;
+
+    private List<String> listChatroomIds;
 
     public UserModel() {
     }
@@ -17,6 +22,21 @@ public class UserModel {
         this.username = username;
         this.createdTimestamp = createdTimestamp;
         this.userId = userId;
+    }
+
+    public List<String> getChatroomIds() {
+        if (listChatroomIds == null) {
+            listChatroomIds = new ArrayList<>();
+        }
+        return listChatroomIds;
+    }
+
+    public void setListChatroomIds(List<String> chatroomIds) {
+        this.listChatroomIds = chatroomIds;
+    }
+
+    public void insertChatroomId(String chatroomId) {
+        getChatroomIds().add(chatroomId);
     }
 
     public String getFcmToken() {

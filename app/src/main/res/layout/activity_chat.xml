@@ -44,27 +44,23 @@
             android:src="@drawable/back_icon"
             app:tint="@color/white" />
 
-        <ImageButton
+        <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
             android:id="@+id/chat_call_btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_centerVertical="true"
             android:layout_margin="5dp"
             android:layout_toLeftOf="@+id/chat_video_btn"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/chat_call_icon"
-            app:tint="@color/white" />
+            android:background="?attr/selectableItemBackgroundBorderless" />
 
-        <ImageButton
+        <com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton
             android:id="@+id/chat_video_btn"
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_centerVertical="true"
             android:layout_margin="5dp"
             android:layout_toLeftOf="@+id/chat_info_btn"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/chat_video_icon"
-            app:tint="@color/white" />
+            android:background="?attr/selectableItemBackgroundBorderless" />
 
         <ImageButton
             android:id="@+id/chat_info_btn"
