@@ -17,6 +17,10 @@ public class FirebaseUtil {
         return FirebaseAuth.getInstance().getUid();
     }
 
+    public static String currentUserName() {
+        return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+    }
+
     public static boolean isUserLoggedIn() {
         return currentUserUid() != null;
     }

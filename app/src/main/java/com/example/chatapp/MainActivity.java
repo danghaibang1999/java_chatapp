@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -35,8 +36,6 @@ import im.zego.zim.enums.ZIMConnectionState;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
-
-    public static String username;
     BottomNavigationView bottomNavigationView;
     ImageButton searchButton;
     ImageButton groupButton;
@@ -73,7 +72,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, SearchUserActivity.class));
         }));
 
-        initCallInviteService(1363654772, "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51", FirebaseUtil.currentUserUid(), username);
+        initCallInviteService(1363654772, "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51", FirebaseUtil.currentUserUid(), FirebaseUtil.currentUserName());
 
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.menu_chat) {
@@ -87,11 +86,11 @@ public class MainActivity extends AppCompatActivity {
             }
             mainToolbarTitle.setText(item.getTitle());
             if (item.getItemId() == R.id.menu_chat || item.getItemId() == R.id.menu_group_chat) {
-                searchButton.setVisibility(searchButton.VISIBLE);
-                groupButton.setVisibility(groupButton.VISIBLE);
+                searchButton.setVisibility(View.VISIBLE);
+                groupButton.setVisibility(View.VISIBLE);
             } else {
-                searchButton.setVisibility(searchButton.GONE);
-                groupButton.setVisibility(groupButton.GONE);
+                searchButton.setVisibility(View.GONE);
+                groupButton.setVisibility(View.GONE);
             }
             return true;
         });
