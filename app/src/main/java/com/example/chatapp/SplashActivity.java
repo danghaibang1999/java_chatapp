@@ -41,7 +41,7 @@ public class SplashActivity extends AppCompatActivity {
                     if (FirebaseUtil.isUserLoggedIn()) {
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     } else {
-                        startActivity(new Intent(SplashActivity.this, LoginPhoneNumberActivity.class));
+                        startActivity(new Intent(SplashActivity.this, LoginMainScreenActivity.class));
                     }
                     finish();
                 }
