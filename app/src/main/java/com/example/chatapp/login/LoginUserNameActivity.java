@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +11,8 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.MainActivity;
+import com.example.chatapp.R;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.FirebaseUtil;
 import com.google.android.gms.tasks.OnCompleteListener;

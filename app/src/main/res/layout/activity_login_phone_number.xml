@@ -8,7 +8,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:weightSum="100"
-    tools:context=".LoginPhoneNumberActivity">
+    tools:context=".login.LoginPhoneNumberActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -70,7 +70,7 @@
     <ImageView
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_weight="20"
+        android:layout_weight="10"
         android:src="@drawable/phone_icon"
         app:tint="@color/primary_color"></ImageView>
 
@@ -133,6 +133,59 @@
             android:layout_gravity="center"
             android:layout_weight="10"
             android:indeterminateTint="@color/primary_color"></ProgressBar>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_weight="10"
+        android:gravity="center_vertical"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="20dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:gravity="center">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Don't have an account?"
+                android:textColor="@color/black"
+                android:textSize="15sp"></TextView>
+
+            <TextView
+                android:id="@+id/sign_up_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="5dp"
+                android:text="Sign Up"
+                android:textColor="@color/primary_color"
+                android:textSize="15sp"></TextView>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/forgot_password_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:gravity="center"
+            android:text="Forgot Password?"
+            android:textColor="@color/primary_color"
+            android:textSize="15sp" />
+
+        <TextView
+            android:id="@+id/login_email_address_text_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Login with account address"
+            android:textColor="@color/primary_color"
+            android:textSize="15sp" />
+
     </LinearLayout>
 
 

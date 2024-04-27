@@ -1,4 +1,4 @@
-package com.example.chatapp;
+package com.example.chatapp.login;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.R;
 import com.hbb20.CountryCodePicker;
 
 public class LoginPhoneNumberActivity extends AppCompatActivity {

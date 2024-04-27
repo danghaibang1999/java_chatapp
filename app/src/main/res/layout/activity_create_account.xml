@@ -7,24 +7,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:weightSum="100"
-    tools:context=".login.LoginMainScreenActivity">
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textAlignment="center"
-        android:textColor="@color/primary_color"
-        android:textSize="30sp"
-        android:textStyle="bold"></TextView>
-
-    <ImageView
-        android:layout_width="52dp"
-        android:layout_height="52dp"
-        android:layout_gravity="center"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="20dp"
-        android:src="@drawable/icon"></ImageView>
+    tools:context=".login.CreateAccountActivity">
 
     <TextView
         android:layout_width="wrap_content"
@@ -33,7 +16,7 @@
         android:layout_weight="5"
         android:gravity="center"
         android:letterSpacing="0.08"
-        android:text="Hello, Welcome back!"
+        android:text="Hello, Welcome!"
         android:textColor="@color/black"
         android:textSize="25sp"></TextView>
 
@@ -47,7 +30,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Login"
+            android:text="Create Account"
             android:textColor="@color/black"
             android:textSize="30sp">
 
@@ -89,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:background="@drawable/button_rounded_corner"
-            android:text="LOGIN"
+            android:text="SIGN UP"
             android:textColor="@color/white"></Button>
 
         <ProgressBar
@@ -118,7 +101,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Don't have an account?"
+                android:text="Already have an account?"
                 android:textColor="@color/black"
                 android:textSize="15sp"></TextView>
 
@@ -127,7 +110,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
-                android:text="Sign Up"
+                android:text="Login"
                 android:textColor="@color/primary_color"
                 android:textSize="15sp"></TextView>
 

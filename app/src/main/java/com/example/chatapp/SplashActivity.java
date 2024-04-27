@@ -6,6 +6,7 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.chatapp.login.LoginMainScreenActivity;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
 import com.example.chatapp.util.FirebaseUtil;
