@@ -11,10 +11,10 @@
     tools:context=".login.LoginOTPActivity">
 
     <LinearLayout
+        android:id="@+id/login_otp_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="20"
-        android:id="@+id/login_otp_linear_layout"
         android:gravity="center">
 
         <RelativeLayout
