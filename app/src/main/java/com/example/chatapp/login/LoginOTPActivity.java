@@ -38,6 +38,7 @@ public class LoginOTPActivity extends AppCompatActivity {
     ProgressBar progressBar;
     TextView resendOtpTextView;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    boolean isForgotPassword = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,15 +46,20 @@ public class LoginOTPActivity extends AppCompatActivity {
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login_otp);
 
+        isForgotPassword = getIntent().getBooleanExtra("isForgotPassword", false);
+
         otpInput = findViewById(R.id.login_otp_code);
         nextBtn = findViewById(R.id.login_next_btn);
         progressBar = findViewById(R.id.login_progress_bar);
         resendOtpTextView = findViewById(R.id.resend_otp_textview);
 
+        findViewById(R.id.login_otp_linear_layout).setVisibility(isForgotPassword ? View.GONE : View.VISIBLE);
+
         phoneNumber = getIntent().getExtras().getString("phone");
         sendOtp(phoneNumber, false);
 
         nextBtn.setOnClickListener(v -> {
+            otpInput.setEnabled(false);
             String enterOtpInput = otpInput.getText().toString();
             PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCode, enterOtpInput);
             signIn(credential);
@@ -119,9 +125,15 @@ public class LoginOTPActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Intent intent = new Intent(LoginOTPActivity.this, LoginUserNameActivity.class);
-                    intent.putExtra("phone", phoneNumber);
-                    startActivity(intent);
+                    if (isForgotPassword) {
+                        Intent intent = new Intent(LoginOTPActivity.this, ResetPasswordActivity.class);
+                        intent.putExtra("phone", phoneNumber);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(LoginOTPActivity.this, LoginUserNameActivity.class);
+                        intent.putExtra("phone", phoneNumber);
+                        startActivity(intent);
+                    }
                 } else {
                     AndroidUtil.showToast(getApplicationContext(), "OTP verification failed");
                 }

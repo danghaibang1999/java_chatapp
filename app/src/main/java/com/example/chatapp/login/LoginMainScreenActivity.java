@@ -38,16 +38,22 @@ public class LoginMainScreenActivity extends AppCompatActivity {
 
         setInProgress(false);
         loginBtn.setOnClickListener(v -> {
+            emailInput.setEnabled(false);
+            passwordInput.setEnabled(false);
             String email = emailInput.getText().toString();
             String password = passwordInput.getText().toString();
             login(email, password);
         });
 
         forgotPassword.setOnClickListener(v -> {
-            // Open forgot password activity
+            Intent intent = new Intent(this, LoginPhoneNumberActivity.class);
+            intent.putExtra("isForgotPassword", true);
+            startActivity(intent);
         });
 
         signUp.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CreateAccountActivity.class);
+            startActivity(intent);
             // Open sign up activity
         });
 

@@ -14,6 +14,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="20"
+        android:id="@+id/login_phone_number_linear_layout"
         android:gravity="center">
 
         <RelativeLayout
