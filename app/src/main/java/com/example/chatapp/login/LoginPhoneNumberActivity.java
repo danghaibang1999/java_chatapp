@@ -43,6 +43,7 @@ public class LoginPhoneNumberActivity extends AppCompatActivity {
         loginWithMail = findViewById(R.id.login_email_address_text_view);
 
         findViewById(R.id.login_phone_number_linear_layout).setVisibility(isForgotPassword ? View.GONE : View.VISIBLE);
+        forgotPassword.setVisibility(isForgotPassword ? View.GONE : View.VISIBLE);
         progressBar.setVisibility(View.GONE);
 
         forgotPassword.setOnClickListener(v -> {
