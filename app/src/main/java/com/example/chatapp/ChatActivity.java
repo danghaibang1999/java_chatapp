@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -36,6 +37,7 @@ import com.permissionx.guolindev.request.ExplainScope;
 import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
@@ -51,6 +53,9 @@ import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.WebSocket;
+import okhttp3.WebSocketListener;
 
 public class ChatActivity extends AppCompatActivity {
 
@@ -69,12 +74,26 @@ public class ChatActivity extends AppCompatActivity {
     Uri selectedImageUri;
     ZegoSendCallInvitationButton voiceCallButton;
     ZegoSendCallInvitationButton videoCallButton;
+    private WebSocket webSocket;
+    private final String SERVER_PATH = "https://34.92.61.98/api/ws";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        initiateSocketConnection();
+    }
+
+    private void initiateSocketConnection() {
+
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder().url(SERVER_PATH).build();
+        webSocket = client.newWebSocket(request, new SocketListener());
+
+    }
+
+    private void initializeView() {
         otherUser = AndroidUtil.getUserModelAsIntent(getIntent());
         chatroomId = FirebaseUtil.getChatroomId(FirebaseUtil.currentUserUid(), otherUser.getUserId());
         messageInput = findViewById(R.id.chat_message_input);
@@ -175,7 +194,28 @@ public class ChatActivity extends AppCompatActivity {
             if (message.isEmpty()) {
                 return;
             }
-            sendMessageToUser(message, "text");
+
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("type", "");
+                jsonObject.put("list_user", "[]");
+
+                JSONObject chat = new JSONObject();
+                chat.put("from", FirebaseUtil.currentUserUid());
+                chat.put("to", chatroomId);
+                chat.put("message", message);
+
+                jsonObject.put("chat", chat);
+
+                webSocket.send(jsonObject.toString());
+
+                jsonObject.put("isSent", true);
+                chatRecyclerAdapter.addItem(jsonObject);
+
+                recyclerView.smoothScrollToPosition(chatRecyclerAdapter.getItemCount() - 1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         });
 
         getOrCreateChatroomModel();
@@ -314,6 +354,43 @@ public class ChatActivity extends AppCompatActivity {
     public String createID() {
         Date now = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss").format(now));
-        return String.valueOf(chatroomId + '_' + id);
+        return chatroomId + '_' + id;
+    }
+
+    private class SocketListener extends WebSocketListener {
+
+        @Override
+        public void onOpen(WebSocket webSocket, Response response) {
+            super.onOpen(webSocket, response);
+
+            runOnUiThread(() -> {
+                Toast.makeText(ChatActivity.this,
+                        "Socket Connection Successful!",
+                        Toast.LENGTH_SHORT).show();
+
+                initializeView();
+            });
+
+        }
+
+        @Override
+        public void onMessage(WebSocket webSocket, String text) {
+            super.onMessage(webSocket, text);
+
+            runOnUiThread(() -> {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(text);
+                    jsonObject.put("isSent", false);
+                    chatRecyclerAdapter.addItem(jsonObject);
+                    recyclerView.smoothScrollToPosition(chatRecyclerAdapter.getItemCount() - 1);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            });
+
+        }
     }
 }

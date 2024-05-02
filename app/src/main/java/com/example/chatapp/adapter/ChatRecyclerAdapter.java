@@ -18,10 +18,16 @@ import com.example.chatapp.util.FirebaseUtil;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
+
 
 public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageModel, ChatRecyclerAdapter.ChatModelViewHolder> {
 
     Context context;
+    private final List<JSONObject> messages = new ArrayList<>();
 
     public ChatRecyclerAdapter(@NonNull FirestoreRecyclerOptions<ChatMessageModel> options, Context context) {
         super(options);
@@ -93,6 +99,11 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
         return new ChatModelViewHolder(view);
     }
 
+    public void addItem(JSONObject jsonObject) {
+        messages.add(jsonObject);
+        notifyDataSetChanged();
+    }
+
     class ChatModelViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout textLeftChatLayout, textRightChatLayout, imageLeftChatLayout, imageRightChatLayout;
@@ -102,7 +113,6 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
 
         public ChatModelViewHolder(@NonNull View itemView) {
             super(itemView);
-
             textLeftChatLayout = itemView.findViewById(R.id.text_left_chat_layout);
             textRightChatLayout = itemView.findViewById(R.id.text_right_chat_layout);
             imageLeftChatLayout = itemView.findViewById(R.id.image_left_chat_layout);
@@ -113,7 +123,6 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
             rightChatImageView = itemView.findViewById(R.id.right_chat_image_view);
             leftProfilePic = itemView.findViewById(R.id.left_icon_chat);
             rightProfilePic = itemView.findViewById(R.id.right_icon_chat);
-
         }
     }
 }
