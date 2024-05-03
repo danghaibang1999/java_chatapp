@@ -23,7 +23,7 @@ import com.example.chatapp.R;
 import java.util.HashMap;
 import java.util.Map;
 
-public class LoginMainScreenActivity extends AppCompatActivity {
+public class LoginAddressActivity extends AppCompatActivity {
 
     public static final String SHARED_PREF_NAME = "shared_pref";
     public static final String ROLL_SHARED_PREF = "roll";
@@ -41,7 +41,7 @@ public class LoginMainScreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login_main_screen);
+        setContentView(R.layout.activity_login_address);
 
         progressBar = findViewById(R.id.login_progress_bar);
         loginBtn = findViewById(R.id.login_btn);
@@ -65,7 +65,7 @@ public class LoginMainScreenActivity extends AppCompatActivity {
         });
 
         signUp.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CreateAccountActivity.class);
+            Intent intent = new Intent(this, SignUpActivity.class);
             startActivity(intent);
             // Open sign up activity
         });
@@ -86,7 +86,7 @@ public class LoginMainScreenActivity extends AppCompatActivity {
                     if (response.equals("success")) {
                         //Creating a shared preference
 
-                        SharedPreferences sp = LoginMainScreenActivity.this.getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
+                        SharedPreferences sp = LoginAddressActivity.this.getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
 
                         //Creating editor to store values to shared preferences
                         SharedPreferences.Editor editor = sp.edit();
@@ -98,25 +98,25 @@ public class LoginMainScreenActivity extends AppCompatActivity {
 
                         setInProgress(false);
                         //Starting Home activity
-                        Intent intent = new Intent(LoginMainScreenActivity.this, MainActivity.class);
+                        Intent intent = new Intent(LoginAddressActivity.this, MainActivity.class);
                         startActivity(intent);
-                        Toast.makeText(LoginMainScreenActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginAddressActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
 
                     } else if (response.equals("failure")) {
                         //If the server response is not success
                         //Displaying an error message on toast
-                        Toast.makeText(LoginMainScreenActivity.this, "Email or Password is not valid", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginAddressActivity.this, "Email or Password is not valid", Toast.LENGTH_LONG).show();
                         setInProgress(false);
                     } else {
                         //If the server response is not success
                         //Displaying an error message on toast
-                        Toast.makeText(LoginMainScreenActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
+                        Toast.makeText(LoginAddressActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
                         setInProgress(false);
                     }
                 },
 
                 error -> {
-                    Toast.makeText(LoginMainScreenActivity.this, "There is an error !!!", Toast.LENGTH_LONG).show();
+                    Toast.makeText(LoginAddressActivity.this, "There is an error !!!", Toast.LENGTH_LONG).show();
                     setInProgress(false);
                 }) {
 

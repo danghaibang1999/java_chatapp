@@ -26,8 +26,8 @@ import java.util.List;
 
 public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageModel, ChatRecyclerAdapter.ChatModelViewHolder> {
 
-    Context context;
     private final List<JSONObject> messages = new ArrayList<>();
+    Context context;
 
     public ChatRecyclerAdapter(@NonNull FirestoreRecyclerOptions<ChatMessageModel> options, Context context) {
         super(options);

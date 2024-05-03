@@ -26,10 +26,10 @@
             android:name=".login.ResetPasswordActivity"
             android:exported="false" />
         <activity
-            android:name=".login.CreateAccountActivity"
+            android:name=".login.SignUpActivity"
             android:exported="false" />
         <activity
-            android:name=".login.LoginMainScreenActivity"
+            android:name=".login.LoginAddressActivity"
             android:exported="false" />
         <activity
             android:name=".ChatActivity"

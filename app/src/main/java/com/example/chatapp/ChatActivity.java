@@ -59,6 +59,7 @@ import okhttp3.WebSocketListener;
 
 public class ChatActivity extends AppCompatActivity {
 
+    private final String SERVER_PATH = "https://34.92.61.98/api/ws";
     UserModel otherUser;
     String chatroomId;
     ChatroomModel chatroomModel;
@@ -75,7 +76,6 @@ public class ChatActivity extends AppCompatActivity {
     ZegoSendCallInvitationButton voiceCallButton;
     ZegoSendCallInvitationButton videoCallButton;
     private WebSocket webSocket;
-    private final String SERVER_PATH = "https://34.92.61.98/api/ws";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

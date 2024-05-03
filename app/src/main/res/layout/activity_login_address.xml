@@ -7,7 +7,7 @@
     android:gravity="center"
     android:orientation="vertical"
     android:weightSum="100"
-    tools:context=".login.LoginMainScreenActivity">
+    tools:context=".login.LoginAddressActivity">
 
     <TextView
         android:layout_width="match_parent"

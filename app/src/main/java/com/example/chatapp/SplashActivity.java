@@ -6,7 +6,7 @@ import android.os.Handler;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.chatapp.login.LoginMainScreenActivity;
+import com.example.chatapp.login.LoginAddressActivity;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
 import com.example.chatapp.util.FirebaseUtil;
@@ -42,7 +42,7 @@ public class SplashActivity extends AppCompatActivity {
                     if (FirebaseUtil.isUserLoggedIn()) {
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     } else {
-                        startActivity(new Intent(SplashActivity.this, LoginMainScreenActivity.class));
+                        startActivity(new Intent(SplashActivity.this, LoginAddressActivity.class));
                     }
                     finish();
                 }

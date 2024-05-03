@@ -53,13 +53,13 @@ public class LoginPhoneNumberActivity extends AppCompatActivity {
         });
 
         signUp.setOnClickListener(v -> {
-            Intent intent = new Intent(this, CreateAccountActivity.class);
+            Intent intent = new Intent(this, SignUpActivity.class);
             startActivity(intent);
             // Open sign up activity
         });
 
         loginWithMail.setOnClickListener(v -> {
-            Intent intent = new Intent(this, LoginMainScreenActivity.class);
+            Intent intent = new Intent(this, LoginAddressActivity.class);
             startActivity(intent);
         });
 

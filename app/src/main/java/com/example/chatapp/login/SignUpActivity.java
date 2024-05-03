@@ -12,7 +12,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.R;
 
-public class CreateAccountActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity {
 
     ProgressBar progressBar;
     Button signUpBtn;
@@ -25,7 +25,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_create_account);
+        setContentView(R.layout.activity_sign_up);
 
         progressBar = findViewById(R.id.login_progress_bar);
         signUpBtn = findViewById(R.id.signup_btn);
@@ -51,7 +51,7 @@ public class CreateAccountActivity extends AppCompatActivity {
         });
 
         login.setOnClickListener(v -> {
-            Intent intent = new Intent(this, LoginMainScreenActivity.class);
+            Intent intent = new Intent(this, LoginAddressActivity.class);
             startActivity(intent);
             // Open sign up activity
         });
