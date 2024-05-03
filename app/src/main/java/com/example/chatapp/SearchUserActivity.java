@@ -9,10 +9,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.adapter.SearchUserRecyclerAdapter;
-import com.example.chatapp.models.UserModel;
-import com.example.chatapp.util.FirebaseUtil;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.Query;
 
 public class SearchUserActivity extends AppCompatActivity {
 
@@ -50,11 +46,11 @@ public class SearchUserActivity extends AppCompatActivity {
 
     void setupSearchRecyclerView(String searchTerm) {
 
-        Query query = FirebaseUtil.allUserCollectionReference().whereGreaterThanOrEqualTo("username", searchTerm);
+//        Query query = FirebaseUtil.allUserCollectionReference().whereGreaterThanOrEqualTo("username", searchTerm);
+//
+//        FirestoreRecyclerOptions<UserModel> options = new FirestoreRecyclerOptions.Builder<UserModel>().setQuery(query, UserModel.class).build();
 
-        FirestoreRecyclerOptions<UserModel> options = new FirestoreRecyclerOptions.Builder<UserModel>().setQuery(query, UserModel.class).build();
-
-        searchUserRecyclerAdapter = new SearchUserRecyclerAdapter(options, getApplicationContext());
+        searchUserRecyclerAdapter = new SearchUserRecyclerAdapter(null, getApplicationContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(searchUserRecyclerAdapter);
         searchUserRecyclerAdapter.startListening();

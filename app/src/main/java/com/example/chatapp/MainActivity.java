@@ -9,13 +9,18 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.example.chatapp.util.FirebaseUtil;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.chatapp.models.UserModel;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.Timestamp;
 import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType;
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig;
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService;
@@ -28,7 +33,12 @@ import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoCallInvitationData;
 import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider;
 import com.zegocloud.uikit.service.express.IExpressEngineEventHandler;
 
+import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason;
 import im.zego.zim.enums.ZIMConnectionEvent;
@@ -44,11 +54,16 @@ public class MainActivity extends AppCompatActivity {
     GroupChatFragment groupFragment;
     ContactFragment contactFragment;
     TextView mainToolbarTitle;
+    public static UserModel currentUser;
+    private static final String USER_URL = "http://34.92.61.98/api/user/profile";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String access_token = getIntent().getStringExtra("access_token");
+        getCurrentUserProfile(access_token);
 
         chatFragment = new ChatFragment();
         settingFragment = new ProfileSettingFragment();
@@ -72,8 +87,6 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, SearchUserActivity.class));
         }));
 
-        initCallInviteService(1363654772, "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51", FirebaseUtil.currentUserUid(), FirebaseUtil.currentUserName());
-
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.menu_chat) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, chatFragment).commit();
@@ -94,17 +107,49 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
-        bottomNavigationView.setSelectedItemId(R.id.menu_chat);
-        getFCMTokens();
     }
 
-    private void getFCMTokens() {
-        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                String token = task.getResult();
-                FirebaseUtil.currentUserDetails().update("fcmToken", token);
+    private void getCurrentUserProfile(String access_token) {
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.GET, USER_URL, null, response -> {
+                    //If we are getting success from server
+                    try {
+                        if (!response.toString().isEmpty()) {
+                            currentUser = new UserModel(response.getString("phone"),
+                                    response.getString("name"), Timestamp.now(), response.getString("id"));
+                            initCallInviteService(1363654772,
+                                    "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51",
+                                    currentUser.getUserId(), currentUser.getUsername());
+                            bottomNavigationView.setSelectedItemId(R.id.menu_chat);
+                        } else {
+                            //If the server response is not success
+                            //Displaying an error message on toast
+                            Toast.makeText(MainActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
+                    }
+                },
+
+                        error -> {
+                            try {
+                                Toast.makeText(MainActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
+                            } catch (UnsupportedEncodingException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + access_token);
+                return headers;
             }
-        });
+        };
+
+        //Adding the string request to the queue
+        RequestQueue requestQueue = Volley.newRequestQueue(this);
+        requestQueue.add(jsonObjectRequest);
     }
 
     public void initCallInviteService(long appID, String appSign, String userID, String userName) {

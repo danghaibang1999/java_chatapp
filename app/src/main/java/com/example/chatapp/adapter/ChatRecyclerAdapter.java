@@ -11,10 +11,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.models.ChatMessageModel;
-import com.example.chatapp.util.AndroidUtil;
-import com.example.chatapp.util.FirebaseUtil;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
@@ -36,18 +35,18 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
 
     @Override
     protected void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position, @NonNull ChatMessageModel model) {
-        if (model.getSenderId().equals(FirebaseUtil.currentUserUid())) {
+        if (model.getSenderId().equals(MainActivity.currentUser.getUserId())) {
             holder.textLeftChatLayout.setVisibility(View.GONE);
             holder.imageLeftChatLayout.setVisibility(View.GONE);
             if (model.getMessageType().equals("image")) {
                 holder.imageRightChatLayout.setVisibility(View.VISIBLE);
                 holder.textRightChatLayout.setVisibility(View.GONE);
-                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
-                        .addOnCompleteListener(t -> {
-                            if (t.isSuccessful()) {
-                                AndroidUtil.setChatImage(context, t.getResult(), holder.rightChatImageView);
-                            }
-                        });
+//                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
+//                        .addOnCompleteListener(t -> {
+//                            if (t.isSuccessful()) {
+//                                AndroidUtil.setChatImage(context, t.getResult(), holder.rightChatImageView);
+//                            }
+//                        });
             } else if (model.getMessageType().equals("text")) {
                 holder.imageRightChatLayout.setVisibility(View.GONE);
                 holder.rightChatImageView.setVisibility(View.GONE);
@@ -56,24 +55,24 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
             }
             holder.leftProfilePic.setVisibility(View.GONE);
             holder.rightProfilePic.setVisibility(View.VISIBLE);
-            FirebaseUtil.getCurrentProfilePicStorageRef().getDownloadUrl()
-                    .addOnCompleteListener(t -> {
-                        if (t.isSuccessful()) {
-                            AndroidUtil.setProfilePic(context, t.getResult(), holder.rightProfilePic);
-                        }
-                    });
+//            FirebaseUtil.getCurrentProfilePicStorageRef().getDownloadUrl()
+//                    .addOnCompleteListener(t -> {
+//                        if (t.isSuccessful()) {
+//                            AndroidUtil.setProfilePic(context, t.getResult(), holder.rightProfilePic);
+//                        }
+//                    });
         } else {
             holder.textRightChatLayout.setVisibility(View.GONE);
             holder.imageRightChatLayout.setVisibility(View.GONE);
             if (model.getMessageType().equals("image")) {
                 holder.imageLeftChatLayout.setVisibility(View.VISIBLE);
                 holder.textLeftChatLayout.setVisibility(View.GONE);
-                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
-                        .addOnCompleteListener(t -> {
-                            if (t.isSuccessful()) {
-                                AndroidUtil.setChatImage(context, t.getResult(), holder.leftChatImageView);
-                            }
-                        });
+//                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
+//                        .addOnCompleteListener(t -> {
+//                            if (t.isSuccessful()) {
+//                                AndroidUtil.setChatImage(context, t.getResult(), holder.leftChatImageView);
+//                            }
+//                        });
             } else if (model.getMessageType().equals("text")) {
                 holder.imageLeftChatLayout.setVisibility(View.GONE);
                 holder.textLeftChatLayout.setVisibility(View.VISIBLE);
@@ -83,12 +82,12 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
             holder.rightProfilePic.setVisibility(View.GONE);
             holder.leftProfilePic.setVisibility(View.VISIBLE);
 
-            FirebaseUtil.getOtherProfilePicStorageRef(model.getSenderId()).getDownloadUrl()
-                    .addOnCompleteListener(t -> {
-                        if (t.isSuccessful()) {
-                            AndroidUtil.setProfilePic(context, t.getResult(), holder.leftProfilePic);
-                        }
-                    });
+//            FirebaseUtil.getOtherProfilePicStorageRef(model.getSenderId()).getDownloadUrl()
+//                    .addOnCompleteListener(t -> {
+//                        if (t.isSuccessful()) {
+//                            AndroidUtil.setProfilePic(context, t.getResult(), holder.leftProfilePic);
+//                        }
+//                    });
         }
     }
 

@@ -11,9 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.adapter.RecentChatRecyclerAdapter;
 import com.example.chatapp.models.ChatroomModel;
-import com.example.chatapp.util.FirebaseUtil;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
-import com.google.firebase.firestore.Query;
+
+import java.util.List;
 
 public class ChatFragment extends Fragment {
 
@@ -35,17 +34,16 @@ public class ChatFragment extends Fragment {
     }
 
     void setupRecyclerView() {
-
-        Query query = FirebaseUtil.allChatroomCollectionReference()
-                .whereArrayContains("userIds", FirebaseUtil.currentUserUid())
-                .orderBy("lastMessageTime", Query.Direction.DESCENDING);
-
-        FirestoreRecyclerOptions<ChatroomModel> options = new FirestoreRecyclerOptions.Builder<ChatroomModel>().setQuery(query, ChatroomModel.class).build();
-
-        recentChatRecyclerAdapter = new RecentChatRecyclerAdapter(options, getContext());
+        List<ChatroomModel> chatroomModels = getChatroomModels();
+        recentChatRecyclerAdapter = new RecentChatRecyclerAdapter(chatroomModels, getContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(recentChatRecyclerAdapter);
-        recentChatRecyclerAdapter.startListening();
+        recentChatRecyclerAdapter.notifyDataSetChanged();
+    }
+
+    public List<ChatroomModel> getChatroomModels() {
+
+        return null;
     }
 
     @Override

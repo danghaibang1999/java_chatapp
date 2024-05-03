@@ -12,10 +12,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.ChatActivity;
+import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
-import com.example.chatapp.util.FirebaseUtil;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
@@ -32,16 +32,16 @@ public class SearchUserRecyclerAdapter extends FirestoreRecyclerAdapter<UserMode
     protected void onBindViewHolder(@NonNull UserModelViewHolder holder, int i, @NonNull UserModel userModel) {
         holder.usernameText.setText(userModel.getUsername());
         holder.phoneText.setText(userModel.getPhone());
-        if (userModel.getUserId().equals(FirebaseUtil.currentUserUid())) {
+        if (userModel.getUserId().equals(MainActivity.currentUser.getUserId())) {
             holder.usernameText.setText(userModel.getUsername() + " (Me)");
         }
 
-        FirebaseUtil.getOtherProfilePicStorageRef(userModel.getUserId()).getDownloadUrl()
-                .addOnCompleteListener(t -> {
-                    if (t.isSuccessful()) {
-                        AndroidUtil.setProfilePic(context, t.getResult(), holder.profilePic);
-                    }
-                });
+//        FirebaseUtil.getOtherProfilePicStorageRef(userModel.getUserId()).getDownloadUrl()
+//                .addOnCompleteListener(t -> {
+//                    if (t.isSuccessful()) {
+//                        AndroidUtil.setProfilePic(context, t.getResult(), holder.profilePic);
+//                    }
+//                });
 
         holder.itemView.setOnClickListener((v -> {
             Intent intent = new Intent(context, ChatActivity.class);

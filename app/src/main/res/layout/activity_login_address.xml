@@ -61,7 +61,7 @@
             android:layout_marginBottom="20dp"
             android:background="@drawable/edit_text_rounded_corner"
             android:elevation="5dp"
-            android:hint="Email"
+            android:hint="Username or Email"
             android:inputType="text"
             android:padding="10dp"></EditText>
 
@@ -140,15 +140,6 @@
             android:layout_marginBottom="10dp"
             android:gravity="center"
             android:text="Forgot Password?"
-            android:textColor="@color/primary_color"
-            android:textSize="15sp" />
-
-        <TextView
-            android:id="@+id/login_with_phone_number_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Login with phone number"
             android:textColor="@color/primary_color"
             android:textSize="15sp" />
 

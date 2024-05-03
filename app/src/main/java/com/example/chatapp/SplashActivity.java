@@ -7,9 +7,6 @@ import android.os.Handler;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.login.LoginAddressActivity;
-import com.example.chatapp.models.UserModel;
-import com.example.chatapp.util.AndroidUtil;
-import com.example.chatapp.util.FirebaseUtil;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -20,26 +17,26 @@ public class SplashActivity extends AppCompatActivity {
 
         if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("userId")) {
             String userId = getIntent().getExtras().getString("userId");
-            FirebaseUtil.allUserCollectionReference().document(userId).get().addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    UserModel userModel = task.getResult().toObject(UserModel.class);
-
-                    Intent mainIntent = new Intent(this, MainActivity.class);
-                    mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-
-                    Intent intent = new Intent(this, ChatActivity.class);
-                    AndroidUtil.passUserModelAsIntent(intent, userModel);
-
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
-                    finish();
-                }
-            });
+//            FirebaseUtil.allUserCollectionReference().document(userId).get().addOnCompleteListener(task -> {
+//                if (task.isSuccessful()) {
+//                    UserModel userModel = task.getResult().toObject(UserModel.class);
+//
+//                    Intent mainIntent = new Intent(this, MainActivity.class);
+//                    mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//
+//                    Intent intent = new Intent(this, ChatActivity.class);
+//                    AndroidUtil.passUserModelAsIntent(intent, userModel);
+//
+//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//                    startActivity(intent);
+//                    finish();
+//                }
+//            });
         } else {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    if (FirebaseUtil.isUserLoggedIn()) {
+                    if (!true) {
                         startActivity(new Intent(SplashActivity.this, MainActivity.class));
                     } else {
                         startActivity(new Intent(SplashActivity.this, LoginAddressActivity.class));

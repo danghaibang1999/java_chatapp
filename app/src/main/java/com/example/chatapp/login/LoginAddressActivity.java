@@ -1,9 +1,7 @@
 package com.example.chatapp.login;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,19 +13,18 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 
 public class LoginAddressActivity extends AppCompatActivity {
-
-    public static final String SHARED_PREF_NAME = "shared_pref";
-    public static final String ROLL_SHARED_PREF = "roll";
-    public static final String LOGIN_URL = "https://34.92.61.98/api/auth/login/";
+    public static final String LOGIN_URL = "http://34.92.61.98/api/auth/login";
 
     ProgressBar progressBar;
     Button loginBtn;
@@ -35,7 +32,6 @@ public class LoginAddressActivity extends AppCompatActivity {
     EditText passwordInput;
     TextView forgotPassword;
     TextView signUp;
-    TextView loginWithPhone;
 
 
     @Override
@@ -49,7 +45,6 @@ public class LoginAddressActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.login_password);
         forgotPassword = findViewById(R.id.forgot_password_text_view);
         signUp = findViewById(R.id.sign_up_text_view);
-        loginWithPhone = findViewById(R.id.login_with_phone_number_text_view);
 
         setInProgress(false);
         loginBtn.setOnClickListener(v -> {
@@ -59,8 +54,7 @@ public class LoginAddressActivity extends AppCompatActivity {
         });
 
         forgotPassword.setOnClickListener(v -> {
-            Intent intent = new Intent(this, LoginPhoneNumberActivity.class);
-            intent.putExtra("isForgotPassword", true);
+            Intent intent = new Intent(this, LoginForgotPasswordActivity.class);
             startActivity(intent);
         });
 
@@ -69,72 +63,53 @@ public class LoginAddressActivity extends AppCompatActivity {
             startActivity(intent);
             // Open sign up activity
         });
-
-        loginWithPhone.setOnClickListener(v -> {
-            Intent intent = new Intent(this, LoginPhoneNumberActivity.class);
-            startActivity(intent);
-        });
     }
 
     private void login(String username, String password) {
         setInProgress(true);
+        JSONObject request = new JSONObject();
+        try {
+            request.put("username_or_email", username);
+            request.put("password", password);
+
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
         //Creating a string request
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, LOGIN_URL,
-                response -> {
-                    Log.d("Response", response);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
+                (Request.Method.POST, LOGIN_URL, request, response -> {
                     //If we are getting success from server
-                    if (response.equals("success")) {
-                        //Creating a shared preference
-
-                        SharedPreferences sp = LoginAddressActivity.this.getSharedPreferences(SHARED_PREF_NAME, MODE_PRIVATE);
-
-                        //Creating editor to store values to shared preferences
-                        SharedPreferences.Editor editor = sp.edit();
-                        //Adding values to editor
-                        editor.putString(ROLL_SHARED_PREF, username);
-
-                        //Saving values to editor
-                        editor.apply();
-
-                        setInProgress(false);
-                        //Starting Home activity
-                        Intent intent = new Intent(LoginAddressActivity.this, MainActivity.class);
-                        startActivity(intent);
-                        Toast.makeText(LoginAddressActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-
-                    } else if (response.equals("failure")) {
-                        //If the server response is not success
-                        //Displaying an error message on toast
-                        Toast.makeText(LoginAddressActivity.this, "Email or Password is not valid", Toast.LENGTH_LONG).show();
-                        setInProgress(false);
-                    } else {
-                        //If the server response is not success
-                        //Displaying an error message on toast
-                        Toast.makeText(LoginAddressActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
-                        setInProgress(false);
+                    try {
+                        if (!response.get("access_token").toString().isEmpty()) {
+                            setInProgress(false);
+                            //Starting Home activity
+                            Intent intent = new Intent(LoginAddressActivity.this, MainActivity.class);
+                            intent.putExtra("access_token", response.get("access_token").toString());
+                            startActivity(intent);
+                            Toast.makeText(LoginAddressActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                        } else {
+                            //If the server response is not success
+                            //Displaying an error message on toast
+                            Toast.makeText(LoginAddressActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
+                            setInProgress(false);
+                        }
+                    } catch (JSONException e) {
+                        throw new RuntimeException(e);
                     }
                 },
 
                 error -> {
-                    Toast.makeText(LoginAddressActivity.this, "There is an error !!!", Toast.LENGTH_LONG).show();
+                    try {
+                        Toast.makeText(LoginAddressActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
+                    } catch (UnsupportedEncodingException e) {
+                        throw new RuntimeException(e);
+                    }
                     setInProgress(false);
-                }) {
-
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<>();
-                //Adding parameters to request
-                params.put("username_or_email", username);
-                params.put("password", password);
-
-                //returning parameter
-                return params;
-            }
-        };
+                });
 
         //Adding the string request to the queue
         RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
+        requestQueue.add(jsonObjectRequest);
     }
 
     private void setInProgress(boolean isProgress) {

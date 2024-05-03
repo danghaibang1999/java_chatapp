@@ -20,7 +20,6 @@ import androidx.fragment.app.Fragment;
 
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
-import com.example.chatapp.util.FirebaseUtil;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -72,7 +71,6 @@ public class ProfileSettingFragment extends Fragment {
         progressBar = view.findViewById(R.id.login_progress_bar);
         logoutButton = view.findViewById(R.id.logout_btn);
 
-        getUserData();
 
         updateProfileButton.setOnClickListener(v -> {
             String username = usernameInput.getText().toString();
@@ -83,14 +81,13 @@ public class ProfileSettingFragment extends Fragment {
             currentUserModel.setUsername(username);
             setInProgress(true);
             if (selectedImageUri != null) {
-                FirebaseUtil.getCurrentProfilePicStorageRef().putFile(selectedImageUri)
-                        .addOnCompleteListener(task -> {
-                            if (task.isSuccessful()) {
-                                updateToFireStore();
-                            }
-                        });
+//                FirebaseUtil.getCurrentProfilePicStorageRef().putFile(selectedImageUri)
+//                        .addOnCompleteListener(task -> {
+//                            if (task.isSuccessful()) {
+//                                updateToFireStore();
+//                            }
+//                        });
             } else {
-                updateToFireStore();
             }
 
         });
@@ -100,7 +97,6 @@ public class ProfileSettingFragment extends Fragment {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
-                        FirebaseUtil.logout();
                         Intent intent = new Intent(getContext(), SplashActivity.class);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                         startActivity(intent);
@@ -125,41 +121,11 @@ public class ProfileSettingFragment extends Fragment {
         return view;
     }
 
-    void updateToFireStore() {
-        // Update the user data to Firestore
-        FirebaseUtil.currentUserDetails().set(currentUserModel)
-                .addOnCompleteListener(task -> {
-                    setInProgress(false);
-                    if (task.isSuccessful()) {
-                        usernameInput.setError(null);
-                        AndroidUtil.showToast(getContext(), "Profile updated successfully");
-                    } else {
-                        AndroidUtil.showToast(getContext(), "Failed to update profile");
-                    }
-                });
-    }
 
     void getUserData() {
         // Get user data from Firestore and set it to the views
         setInProgress(true);
 
-        FirebaseUtil.getCurrentProfilePicStorageRef().getDownloadUrl()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        AndroidUtil.setProfilePic(getContext(), task.getResult(), profileImage);
-                    }
-                });
-
-        FirebaseUtil.currentUserDetails()
-                .get()
-                .addOnCompleteListener(task -> {
-                    setInProgress(false);
-                    if (task.isSuccessful()) {
-                        currentUserModel = task.getResult().toObject(UserModel.class);
-                        usernameInput.setText(currentUserModel.getUsername());
-                        phoneInput.setText(currentUserModel.getPhone());
-                    }
-                });
     }
 
     private void setInProgress(boolean isProgress) {
