@@ -40,7 +40,7 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         UserModel userModel = userModelList.get(position);
         holder.usernameText.setText(userModel.getUsername());
         holder.phoneText.setText(userModel.getPhone());
-        if (userModel.getUserId().equals(MainActivity.currentUser.getUserId())) {
+        if (userModel.getId().equals(MainActivity.currentUser.getId())) {
             holder.usernameText.setText(userModel.getUsername() + " (Me)");
         } else {
             holder.usernameText.setText(userModel.getUsername());

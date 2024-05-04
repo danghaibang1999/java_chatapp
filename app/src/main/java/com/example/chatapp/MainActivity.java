@@ -23,7 +23,6 @@ import com.example.chatapp.models.FriendRequest;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.DataStorageManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.firebase.Timestamp;
 import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType;
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallConfig;
 import com.zegocloud.uikit.prebuilt.call.ZegoUIKitPrebuiltCallService;
@@ -40,7 +39,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -236,16 +234,21 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (!response.toString().isEmpty()) {
                 // Process user profile response...
-                currentUser = new UserModel(
-                        response.getString("phone"),
-                        response.getString("name"),
-                        Timestamp.now(),
-                        response.getString("id")
-                );
+                currentUser = new UserModel();
+                currentUser.setId(response.getString("id"));
+                currentUser.setName(response.getString("name"));
+                currentUser.setEmail(response.getString("email"));
+                currentUser.setCreatedAt(response.getString("created_at"));
+                currentUser.setUpdatedAt(response.getString("updated_at"));
+                currentUser.setLastLoggedIn(response.getString("last_logged_in"));
+                currentUser.setRole(response.getString("role"));
+                currentUser.setStatus(response.getString("status"));
+                currentUser.setUsername(response.getString("username"));
+                currentUser.setAvatarUrl(response.getString("avatar_url"));
                 initCallInviteService(
                         1363654772,
                         "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51",
-                        currentUser.getUserId(),
+                        currentUser.getId(),
                         currentUser.getUsername()
                 );
                 bottomNavigationView.setSelectedItemId(R.id.menu_chat);

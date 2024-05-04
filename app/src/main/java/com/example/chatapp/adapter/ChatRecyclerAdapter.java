@@ -35,7 +35,7 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
 
     @Override
     protected void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position, @NonNull ChatMessageModel model) {
-        if (model.getSenderId().equals(MainActivity.currentUser.getUserId())) {
+        if (model.getSenderId().equals(MainActivity.currentUser.getId())) {
             holder.textLeftChatLayout.setVisibility(View.GONE);
             holder.imageLeftChatLayout.setVisibility(View.GONE);
             if (model.getMessageType().equals("image")) {

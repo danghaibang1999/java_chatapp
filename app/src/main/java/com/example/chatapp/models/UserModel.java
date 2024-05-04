@@ -1,50 +1,97 @@
 package com.example.chatapp.models;
 
-import com.google.firebase.Timestamp;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserModel {
+    private String avatarUrl;
+    private List<Conversation> conversations;
+    private String createdAt;
+    private String email;
+    private List<FriendRequest> friendRequests;
+    private List<Friend> friends;
+    private String id;
+    private String lastLoggedIn;
+    private String name;
     private String phone;
+    private String role;
+    private String status;
+    private String updatedAt;
     private String username;
-    private Timestamp createdTimestamp;
-    private String userId;
-    private String fcmToken;
-
-    private List<String> listChatroomIds;
 
     public UserModel() {
+        // Required empty public constructor
     }
 
-    public UserModel(String phone, String username, Timestamp createdTimestamp, String userId) {
-        this.phone = phone;
-        this.username = username;
-        this.createdTimestamp = createdTimestamp;
-        this.userId = userId;
+    public String getAvatarUrl() {
+        return avatarUrl;
     }
 
-    public List<String> getChatroomIds() {
-        if (listChatroomIds == null) {
-            listChatroomIds = new ArrayList<>();
-        }
-        return listChatroomIds;
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
     }
 
-    public void setListChatroomIds(List<String> chatroomIds) {
-        this.listChatroomIds = chatroomIds;
+    public List<Conversation> getConversations() {
+        return conversations;
     }
 
-    public void insertChatroomId(String chatroomId) {
-        getChatroomIds().add(chatroomId);
+    public void setConversations(List<Conversation> conversations) {
+        this.conversations = conversations;
     }
 
-    public String getFcmToken() {
-        return fcmToken;
+    public String getCreatedAt() {
+        return createdAt;
     }
 
-    public void setFcmToken(String fcmToken) {
-        this.fcmToken = fcmToken;
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public List<FriendRequest> getFriendRequests() {
+        return friendRequests;
+    }
+
+    public void setFriendRequests(List<FriendRequest> friendRequests) {
+        this.friendRequests = friendRequests;
+    }
+
+    public List<Friend> getFriends() {
+        return friends;
+    }
+
+    public void setFriends(List<Friend> friends) {
+        this.friends = friends;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getLastLoggedIn() {
+        return lastLoggedIn;
+    }
+
+    public void setLastLoggedIn(String lastLoggedIn) {
+        this.lastLoggedIn = lastLoggedIn;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getPhone() {
@@ -55,12 +102,28 @@ public class UserModel {
         this.phone = phone;
     }
 
-    public String getUserId() {
-        return userId;
+    public String getRole() {
+        return role;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(String updatedAt) {
+        this.updatedAt = updatedAt;
     }
 
     public String getUsername() {
@@ -69,13 +132,5 @@ public class UserModel {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public Timestamp getCreatedTimestamp() {
-        return createdTimestamp;
-    }
-
-    public void setCreatedTimestamp(Timestamp createdTimestamp) {
-        this.createdTimestamp = createdTimestamp;
     }
 }

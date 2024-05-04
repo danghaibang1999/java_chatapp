@@ -70,16 +70,9 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
-        initiateSocketConnection();
+        //initiateSocketConnection();
     }
 
-    private void initiateSocketConnection() {
-
-        OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder().url(SERVER_PATH).build();
-        webSocket = client.newWebSocket(request, new SocketListener());
-
-    }
 
     private void initializeView() {
         otherUser = AndroidUtil.getUserModelAsIntent(getIntent());
@@ -110,7 +103,7 @@ public class ChatActivity extends AppCompatActivity {
         //        newVoiceCall.setResourceID("zegouikit_call");
         voiceCallButton.setResourceID("zego_data");
         voiceCallButton.setOnClickListener(v -> {
-            String targetUserID = otherUser.getUserId();
+            String targetUserID = otherUser.getId();
             String[] split = targetUserID.split(",");
             List<ZegoUIKitUser> users = new ArrayList<>();
             for (String userID : split) {
@@ -129,7 +122,7 @@ public class ChatActivity extends AppCompatActivity {
         //        newVoiceCall.setResourceID("zegouikit_call");
         videoCallButton.setResourceID("zego_data");
         videoCallButton.setOnClickListener(v -> {
-            String targetUserID = otherUser.getUserId();
+            String targetUserID = otherUser.getId();
             String[] split = targetUserID.split(",");
             List<ZegoUIKitUser> users = new ArrayList<>();
             for (String userID : split) {
@@ -153,7 +146,7 @@ public class ChatActivity extends AppCompatActivity {
 //                                    }
 //                                });
                     } else {
-                        sendMessageToUser(String.valueOf(messageId), "image");
+                        //sendMessageToUser(String.valueOf(messageId), "image");
                     }
                 }
             }
@@ -189,7 +182,7 @@ public class ChatActivity extends AppCompatActivity {
                 jsonObject.put("list_user", "[]");
 
                 JSONObject chat = new JSONObject();
-                chat.put("from", MainActivity.currentUser.getUserId());
+                chat.put("from", MainActivity.currentUser.getId());
                 chat.put("to", chatroomId);
                 chat.put("message", message);
 
@@ -206,7 +199,6 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
-        getOrCreateChatroomModel();
         setupChatRecyclerView();
 
         PermissionX.init(this).permissions(Manifest.permission.SYSTEM_ALERT_WINDOW)

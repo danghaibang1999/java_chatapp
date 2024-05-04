@@ -19,18 +19,14 @@ public class AndroidUtil {
     public static void passUserModelAsIntent(Intent intent, UserModel userModel) {
         intent.putExtra("username", userModel.getUsername());
         intent.putExtra("phone", userModel.getPhone());
-        intent.putExtra("userId", userModel.getUserId());
-        intent.putExtra("fcmToken", userModel.getFcmToken());
-        intent.putExtra("listChatroomIds", userModel.getChatroomIds().toArray(new String[0]));
+        intent.putExtra("userId", userModel.getId());
     }
 
     public static UserModel getUserModelAsIntent(Intent intent) {
         UserModel userModel = new UserModel();
         userModel.setUsername(intent.getStringExtra("username"));
         userModel.setPhone(intent.getStringExtra("phone"));
-        userModel.setUserId(intent.getStringExtra("userId"));
-        userModel.setFcmToken(intent.getStringExtra("fcmToken"));
-        userModel.setListChatroomIds(intent.getStringArrayListExtra("listChatroomIds"));
+        userModel.setId(intent.getStringExtra("userId"));
         return userModel;
     }
 
