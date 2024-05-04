@@ -1,9 +1,9 @@
 package com.example.chatapp;
 
-import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -14,11 +14,14 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.VolleyError;
+import com.example.chatapp.login.LoginAddressActivity;
+import com.example.chatapp.manager.ApiManager;
+import com.example.chatapp.models.Conversation;
+import com.example.chatapp.models.Friend;
+import com.example.chatapp.models.FriendRequest;
 import com.example.chatapp.models.UserModel;
+import com.example.chatapp.util.DataStorageManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.Timestamp;
 import com.zegocloud.uikit.plugin.invitation.ZegoInvitationType;
@@ -33,12 +36,14 @@ import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoCallInvitationData;
 import com.zegocloud.uikit.prebuilt.call.invite.internal.ZegoUIKitPrebuiltCallConfigProvider;
 import com.zegocloud.uikit.service.express.IExpressEngineEventHandler;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.Map;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import im.zego.zegoexpress.constants.ZegoRoomStateChangedReason;
 import im.zego.zim.enums.ZIMConnectionEvent;
@@ -46,6 +51,8 @@ import im.zego.zim.enums.ZIMConnectionState;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String USER_URL = "http://34.92.61.98/api/user/profile";
+    public static UserModel currentUser;
     BottomNavigationView bottomNavigationView;
     ImageButton searchButton;
     ImageButton groupButton;
@@ -54,22 +61,33 @@ public class MainActivity extends AppCompatActivity {
     GroupChatFragment groupFragment;
     ContactFragment contactFragment;
     TextView mainToolbarTitle;
-    public static UserModel currentUser;
-    private static final String USER_URL = "http://34.92.61.98/api/user/profile";
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String access_token = getIntent().getStringExtra("access_token");
-        getCurrentUserProfile(access_token);
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
-        chatFragment = new ChatFragment();
-        settingFragment = new ProfileSettingFragment();
-        groupFragment = new GroupChatFragment();
-        contactFragment = new ContactFragment();
+        initializeViews();
+        initializeFragments();
+        setupListeners();
 
+        String accessToken = getAccessToken();
+        if (accessToken == null) {
+            startActivity(new Intent(MainActivity.this, LoginAddressActivity.class));
+            finish();
+            return;
+        } else {
+            // Fetch current user profile
+            getCurrentUserProfile(accessToken);
+        }
+        bottomNavigationView.setSelectedItemId(R.id.menu_chat);
+    }
+
+    private void initializeViews() {
+        // Initialize views...
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         searchButton = findViewById(R.id.main_search_btn);
         groupButton = findViewById(R.id.group_add_btn);
@@ -86,7 +104,22 @@ public class MainActivity extends AppCompatActivity {
         searchButton.setOnClickListener((v -> {
             startActivity(new Intent(MainActivity.this, SearchUserActivity.class));
         }));
+    }
 
+    public String getAccessToken() {
+        return sharedPreferences.getString("accessToken", null);
+    }
+
+    private void initializeFragments() {
+        // Initialize fragments...
+        chatFragment = new ChatFragment();
+        settingFragment = new ProfileSettingFragment();
+        groupFragment = new GroupChatFragment();
+        contactFragment = new ContactFragment();
+    }
+
+    private void setupListeners() {
+        // Set up listeners for views...
         bottomNavigationView.setOnItemSelectedListener(item -> {
             if (item.getItemId() == R.id.menu_chat) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, chatFragment).commit();
@@ -109,47 +142,124 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getCurrentUserProfile(String access_token) {
-
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.GET, USER_URL, null, response -> {
-                    //If we are getting success from server
-                    try {
-                        if (!response.toString().isEmpty()) {
-                            currentUser = new UserModel(response.getString("phone"),
-                                    response.getString("name"), Timestamp.now(), response.getString("id"));
-                            initCallInviteService(1363654772,
-                                    "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51",
-                                    currentUser.getUserId(), currentUser.getUsername());
-                            bottomNavigationView.setSelectedItemId(R.id.menu_chat);
-                        } else {
-                            //If the server response is not success
-                            //Displaying an error message on toast
-                            Toast.makeText(MainActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                },
-
-                        error -> {
-                            try {
-                                Toast.makeText(MainActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
-                            } catch (UnsupportedEncodingException e) {
-                                throw new RuntimeException(e);
-                            }
-                        }) {
+    private void getCurrentUserProfile(String accessToken) {
+        // Call getProfile method
+        ApiManager.getInstance(this).getProfile(accessToken, new ApiManager.ApiListener() {
             @Override
-            public Map<String, String> getHeaders() {
-                Map<String, String> headers = new HashMap<>();
-                headers.put("Authorization", "Bearer " + access_token);
-                return headers;
-            }
-        };
+            public void onResponse(JSONObject response) {
+                // Parse and save the profile locally
+                try {
+                    String name = response.getString("name");
+                    String email = response.getString("email");
+                    String avatarUrl = response.getString("avatar_url");
+                    String id = response.getString("id");
+                    String lastLoggedIn = response.getString("last_logged_in");
+                    String role = response.getString("role");
+                    String status = response.getString("status");
+                    String username = response.getString("username");
 
-        //Adding the string request to the queue
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
+                    // Now handle conversations, friend requests, and friends arrays
+                    JSONArray conversationsArray = response.getJSONArray("conversations");
+                    List<Conversation> conversations = new ArrayList<>();
+                    for (int i = 0; i < conversationsArray.length(); i++) {
+                        JSONObject convObject = conversationsArray.getJSONObject(i);
+                        Conversation conversation = new Conversation();
+                        conversation.setId(convObject.getString("id"));
+                        conversation.setName(convObject.getString("name"));
+                        conversation.setCreatedAt(convObject.getString("created_at"));
+                        conversation.setUpdatedAt(convObject.getString("updated_at"));
+                        conversations.add(conversation);
+                    }
+
+                    // Handle friend requests
+                    JSONArray friendRequestsArray = response.getJSONArray("friend_requests");
+                    List<FriendRequest> friendRequests = new ArrayList<>();
+                    for (int i = 0; i < friendRequestsArray.length(); i++) {
+                        JSONObject friendRequestObject = friendRequestsArray.getJSONObject(i);
+                        FriendRequest friendRequest = new FriendRequest();
+                        // Parse attributes and set them to friend request object
+                        friendRequests.add(friendRequest);
+                    }
+
+                    // Handle friends
+                    JSONArray friendsArray = response.getJSONArray("friends");
+                    List<Friend> friends = new ArrayList<>();
+                    for (int i = 0; i < friendsArray.length(); i++) {
+                        JSONObject friendObject = friendsArray.getJSONObject(i);
+                        Friend friend = new Friend();
+                        // Parse attributes and set them to friend object
+                        friends.add(friend);
+                    }
+
+                    // Save the profile locally
+                    saveProfileLocally(name, email, avatarUrl, id, lastLoggedIn, role, status, username, conversations, friendRequests, friends);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(MainActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
+    private void saveProfileLocally(String name, String email, String avatarUrl, String id,
+                                    String lastLoggedIn, String role, String status, String username,
+                                    List<Conversation> conversations, List<FriendRequest> friendRequests, List<Friend> friends) {
+        // Here you can save the profile information locally using SharedPreferences, Room Database, etc.
+        // For example, using SharedPreferences:
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("name", name);
+        editor.putString("email", email);
+        editor.putString("avatar_url", avatarUrl);
+        editor.putString("id", id);
+        editor.putString("last_logged_in", lastLoggedIn);
+        editor.putString("role", role);
+        editor.putString("status", status);
+        editor.putString("username", username);
+        // Save conversations, friend requests, and friends using Gson or any other serialization method
+        // Then put them into SharedPreferences
+        // Initialize DataStorageManager
+        DataStorageManager dataStorageManager = new DataStorageManager(this);
+
+        // Example of saving conversations
+        dataStorageManager.saveConversations(conversations);
+        dataStorageManager.saveFriendRequests(friendRequests);
+        dataStorageManager.saveFriends(friends);
+        editor.apply();
+    }
+
+    private void handleUserResponse(JSONObject response) {
+        try {
+            if (!response.toString().isEmpty()) {
+                // Process user profile response...
+                currentUser = new UserModel(
+                        response.getString("phone"),
+                        response.getString("name"),
+                        Timestamp.now(),
+                        response.getString("id")
+                );
+                initCallInviteService(
+                        1363654772,
+                        "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51",
+                        currentUser.getUserId(),
+                        currentUser.getUsername()
+                );
+                bottomNavigationView.setSelectedItemId(R.id.menu_chat);
+            } else {
+                Toast.makeText(MainActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Toast.makeText(MainActivity.this, "Error parsing user profile", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void handleErrorResponse(VolleyError error) {
+        Toast.makeText(MainActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
     }
 
     public void initCallInviteService(long appID, String appSign, String userID, String userName) {
@@ -203,24 +313,15 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Sign Out");
-        builder.setMessage("Are you sure to Sign Out?After Sign out you can't receive offline calls");
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                finish();
-            }
+        builder.setMessage("Are you sure you want to sign out? After signing out, you won't receive offline calls.");
+        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss());
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            dialog.dismiss();
+            MainActivity.super.onBackPressed(); // Call superclass implementation
         });
         builder.create().show();
     }

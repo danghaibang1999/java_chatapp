@@ -1,6 +1,7 @@
 package com.example.chatapp.login;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -12,30 +13,25 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.VolleyError;
 import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
+import com.example.chatapp.manager.ApiManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class LoginOTPActivity extends AppCompatActivity {
-
-    String phoneNumber;
     long timeoutSeconds = 60L;
     EditText otpInput;
     Button verifyOTPBtn;
     ProgressBar progressBar;
     TextView resendOtpTextView;
-    public static final String OTP_REQUEST_URL = "http://34.92.61.98/api/otps/request";
-    public static final String ACTIVE_USER_URL = "http://34.92.61.98/api/users/active";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +40,7 @@ public class LoginOTPActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login_otp);
 
         String email = getIntent().getStringExtra("email");
+        String password = getIntent().getStringExtra("password");
 
         otpInput = findViewById(R.id.login_otp_code);
         verifyOTPBtn = findViewById(R.id.login_next_btn);
@@ -55,7 +52,7 @@ public class LoginOTPActivity extends AppCompatActivity {
         verifyOTPBtn.setOnClickListener(v -> {
             setInProgress(true);
             String enterOtpInput = otpInput.getText().toString();
-            activeUser(enterOtpInput);
+            activeUser(enterOtpInput, email, password);
         });
 
         resendOtpTextView.setOnClickListener(v -> {
@@ -64,38 +61,31 @@ public class LoginOTPActivity extends AppCompatActivity {
     }
 
     private void sendOtp(String email) {
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("email", email);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, OTP_REQUEST_URL, jsonObject, response -> {
-                    //If we are getting success from server
-                    try {
-                        if (response.get("msg").equals("ok")) {
-                            Toast.makeText(LoginOTPActivity.this, "OTP send successfully", Toast.LENGTH_LONG).show();
-                            timeoutSeconds = 60L;
-                            startResendTimer();
-                        } else {
-                            //If the server response is not success
-                            //Displaying an error message on toast
-                            Toast.makeText(LoginOTPActivity.this, "Invalid Information input", Toast.LENGTH_LONG).show();
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-                }, error -> {
-                    try {
-                        Toast.makeText(LoginOTPActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
+        ApiManager apiManager = ApiManager.getInstance(this);
+        apiManager.requestOTP(email, new ApiManager.ApiListener() {
 
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.get("msg").equals("ok")) {
+                        Toast.makeText(LoginOTPActivity.this, "OTP send successfully", Toast.LENGTH_LONG).show();
+                        timeoutSeconds = 60L;
+                        startResendTimer();
+                    } else {
+                        //If the server response is not success
+                        //Displaying an error message on toast
+                        Toast.makeText(LoginOTPActivity.this, "Invalid Information input", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(LoginOTPActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void setInProgress(boolean isProgress) {
@@ -110,42 +100,77 @@ public class LoginOTPActivity extends AppCompatActivity {
         }
     }
 
-    private void activeUser(String otp) {
-        JSONObject request = new JSONObject();
-        try {
-            request.put("otp", otp);
-            request.put("email", getIntent().getStringExtra("email"));
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.PUT, ACTIVE_USER_URL, request, response -> {
-                    //If we are getting success from server
-                    try {
-                        if (response.get("msg").equals("ok")) {
-                            setInProgress(false);
-                            Toast.makeText(LoginOTPActivity.this, "OTP verified", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginOTPActivity.this, MainActivity.class);
-                            startActivity(intent);
-                        } else {
-                            //If the server response is not success
-                            //Displaying an error message on toast
-                            Toast.makeText(LoginOTPActivity.this, "Invalid OTP", Toast.LENGTH_LONG).show();
-                            setInProgress(false);
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
+    private void activeUser(String otp, String email, String password) {
+        ApiManager apiManager = ApiManager.getInstance(this);
+        apiManager.activeUser(getIntent().getStringExtra("email"), otp, new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.get("msg").equals("ok")) {
+                        setInProgress(false);
+                        Toast.makeText(LoginOTPActivity.this, "OTP verified", Toast.LENGTH_SHORT).show();
+                        login(email, password);
+                    } else {
+                        //If the server response is not success
+                        //Displaying an error message on toast
+                        Toast.makeText(LoginOTPActivity.this, "Invalid OTP", Toast.LENGTH_LONG).show();
+                        setInProgress(false);
                     }
-                }, error -> {
-                    try {
-                        Toast.makeText(LoginOTPActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(LoginOTPActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+                setInProgress(false);
+            }
+        });
+    }
+
+    private void login(String email, String password) {
+        ApiManager apiManager = ApiManager.getInstance(this);
+        apiManager.login(email, password, new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (!response.get("access_token").toString().isEmpty()) {
+                        setInProgress(false);
+                        // After successfully obtaining the access token
+                        String accessToken = response.get("access_token").toString(); // Replace with actual access token
+                        saveAccessToken(accessToken);
+                        //Starting Home activity
+                        Intent intent = new Intent(LoginOTPActivity.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        Toast.makeText(LoginOTPActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        //If the server response is not success
+                        //Displaying an error message on toast
+                        Toast.makeText(LoginOTPActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
+                        setInProgress(false);
                     }
-                    setInProgress(false);
-                });
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(LoginOTPActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+                setInProgress(false);
+            }
+        });
+    }
+
+    // Method to save access token locally
+    public void saveAccessToken(String accessToken) {
+        SharedPreferences sharedPreferences = getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("accessToken", accessToken);
+        editor.apply();
     }
 
     void startResendTimer() {

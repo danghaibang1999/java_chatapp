@@ -61,4 +61,5 @@ dependencies {
     implementation("com.android.volley:volley:1.2.1")
     implementation("de.hdodenhof:circleimageview:2.2.0")
     implementation("com.github.ZEGOCLOUD:zego_uikit_prebuilt_call_android:+")
+    implementation("com.google.code.gson:gson:2.8.8")
 }

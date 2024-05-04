@@ -1,6 +1,8 @@
 package com.example.chatapp;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 
@@ -10,41 +12,33 @@ import com.example.chatapp.login.LoginAddressActivity;
 
 public class SplashActivity extends AppCompatActivity {
 
+    private SharedPreferences sharedPreferences;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("userId")) {
-            String userId = getIntent().getExtras().getString("userId");
-//            FirebaseUtil.allUserCollectionReference().document(userId).get().addOnCompleteListener(task -> {
-//                if (task.isSuccessful()) {
-//                    UserModel userModel = task.getResult().toObject(UserModel.class);
-//
-//                    Intent mainIntent = new Intent(this, MainActivity.class);
-//                    mainIntent.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//
-//                    Intent intent = new Intent(this, ChatActivity.class);
-//                    AndroidUtil.passUserModelAsIntent(intent, userModel);
-//
-//                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                    startActivity(intent);
-//                    finish();
-//                }
-//            });
-        } else {
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    if (!true) {
-                        startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                    } else {
-                        startActivity(new Intent(SplashActivity.this, LoginAddressActivity.class));
-                    }
-                    finish();
-                }
-            }, 1000);
-        }
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
+        new Handler().postDelayed(() -> {
+            if (isLoggedIn()) {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+            } else {
+                startActivity(new Intent(SplashActivity.this, LoginAddressActivity.class));
+            }
+            finish();
+        }, 1000);
+
+    }
+
+    // Method to retrieve access token
+    public String getAccessToken() {
+        return sharedPreferences.getString("accessToken", null);
+    }
+
+    // Method to check if user is logged in
+    private boolean isLoggedIn() {
+        return getAccessToken() != null;
     }
 }

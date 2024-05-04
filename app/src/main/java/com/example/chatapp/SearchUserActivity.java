@@ -3,12 +3,17 @@ package com.example.chatapp;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.VolleyError;
 import com.example.chatapp.adapter.SearchUserRecyclerAdapter;
+import com.example.chatapp.manager.ApiManager;
+
+import org.json.JSONObject;
 
 public class SearchUserActivity extends AppCompatActivity {
 
@@ -35,48 +40,36 @@ public class SearchUserActivity extends AppCompatActivity {
         }));
 
         searchButton.setOnClickListener((v -> {
-            String searchTerm = searchInput.getText().toString();
+            String searchTerm = searchInput.getText().toString().trim();
             if (searchTerm.isEmpty() || searchTerm.length() < 3) {
                 searchInput.setError("Invalid Username");
                 return;
             }
-            setupSearchRecyclerView(searchTerm);
+            getUserList(searchTerm);
         }));
     }
 
-    void setupSearchRecyclerView(String searchTerm) {
+    void getUserList(String searchTerm) {
+        // Get the access token from your session management or wherever you store it
+        String accessToken = "your_access_token";
 
-//        Query query = FirebaseUtil.allUserCollectionReference().whereGreaterThanOrEqualTo("username", searchTerm);
-//
-//        FirestoreRecyclerOptions<UserModel> options = new FirestoreRecyclerOptions.Builder<UserModel>().setQuery(query, UserModel.class).build();
+        // Call the getUserList method from ApiManager
+        ApiManager.getInstance(this).getUserList(accessToken, 1, 20, "name", "asc", searchTerm, new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                // Handle the response here
+                // Pass the response JSONObject to the adapter for display
 
-        searchUserRecyclerAdapter = new SearchUserRecyclerAdapter(null, getApplicationContext());
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(searchUserRecyclerAdapter);
-        searchUserRecyclerAdapter.startListening();
-    }
+                searchUserRecyclerAdapter = new SearchUserRecyclerAdapter(response, getApplicationContext());
+                recyclerView.setLayoutManager(new LinearLayoutManager(SearchUserActivity.this));
+                recyclerView.setAdapter(searchUserRecyclerAdapter);
+            }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (searchUserRecyclerAdapter != null) {
-            searchUserRecyclerAdapter.startListening();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (searchUserRecyclerAdapter != null) {
-            searchUserRecyclerAdapter.stopListening();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (searchUserRecyclerAdapter != null) {
-            searchUserRecyclerAdapter.notifyDataSetChanged();
-        }
+            @Override
+            public void onError(VolleyError error) {
+                // Handle the error here
+                Toast.makeText(SearchUserActivity.this, "Error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

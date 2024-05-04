@@ -11,61 +11,65 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chatapp.R;
-import com.example.chatapp.models.ChatroomModel;
-import com.example.chatapp.util.AndroidUtil;
+import com.example.chatapp.models.Conversation;
 
 import java.util.List;
 
 public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRecyclerAdapter.ChatroomModelViewHolder> {
 
     Context context;
-    List<ChatroomModel> chatroomModels;
+    List<Conversation> conversationList;
 
-    public RecentChatRecyclerAdapter(List<ChatroomModel> chatroomModels, Context context) {
+    public RecentChatRecyclerAdapter(List<Conversation> conversations, Context context) {
         this.context = context;
-        this.chatroomModels = chatroomModels;
+        this.conversationList = conversations;
     }
 
     @Override
     public void onBindViewHolder(@NonNull ChatroomModelViewHolder holder, int i) {
-        ChatroomModel model = chatroomModels.get(i);
-        String otherUserId = model.getUserIds().get(0);
-
-        AndroidUtil.setProfilePic(context, t.getResult(), holder.profilePic);
-        if (otherUser.getUserId().equals(FirebaseUtil.currentUserUid())) {
-            holder.usernameText.setText(otherUser.getUsername() + " (You)");
-        } else {
-            holder.usernameText.setText(otherUser.getUsername());
-        }
-
-        String lastMessage = model.getLastMessage();
-
-        if (model.getLastMessageTypeName().equals("image")) {
-            lastMessage = "Image";
-        } else if (model.getLastMessageTypeName().equals("text")) {
-            if (lastMessage.length() > 30) {
-                lastMessage = lastMessage.substring(0, 30) + "...";
-            }
-        }
-
-        if (lastMessageSenderIdIsCurrentUser) {
-            holder.lastMessageText.setText("You: " + lastMessage);
-        } else {
-            holder.lastMessageText.setText(lastMessage);
-        }
-        holder.lastMessageTime.setText(FirebaseUtil.timestampToString(model.getLastMessageTime()));
-
-        holder.itemView.setOnClickListener((v -> {
-            Intent intent = new Intent(context, ChatActivity.class);
-            AndroidUtil.passUserModelAsIntent(intent, otherUser);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-        }));
+//        ChatroomModel model = chatroomModels.get(i);
+//        String otherUserId = model.getUserIds().get(0);
+//
+//        AndroidUtil.setProfilePic(context, t.getResult(), holder.profilePic);
+//        if (otherUser.getUserId().equals(FirebaseUtil.currentUserUid())) {
+//            holder.usernameText.setText(otherUser.getUsername() + " (You)");
+//        } else {
+//            holder.usernameText.setText(otherUser.getUsername());
+//        }
+//
+//        String lastMessage = model.getLastMessage();
+//
+//        if (model.getLastMessageTypeName().equals("image")) {
+//            lastMessage = "Image";
+//        } else if (model.getLastMessageTypeName().equals("text")) {
+//            if (lastMessage.length() > 30) {
+//                lastMessage = lastMessage.substring(0, 30) + "...";
+//            }
+//        }
+//
+//        if (lastMessageSenderIdIsCurrentUser) {
+//            holder.lastMessageText.setText("You: " + lastMessage);
+//        } else {
+//            holder.lastMessageText.setText(lastMessage);
+//        }
+//        holder.lastMessageTime.setText(FirebaseUtil.timestampToString(model.getLastMessageTime()));
+//
+//        holder.itemView.setOnClickListener((v -> {
+//            Intent intent = new Intent(context, ChatActivity.class);
+//            AndroidUtil.passUserModelAsIntent(intent, otherUser);
+//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//            context.startActivity(intent);
+//        }));
     }
 
     @Override
     public int getItemCount() {
         return 0;
+    }
+
+    public void setConversationList(List<Conversation> conversations) {
+        this.conversationList = conversations;
+        notifyDataSetChanged();
     }
 
     @NonNull

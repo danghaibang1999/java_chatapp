@@ -1,6 +1,8 @@
 package com.example.chatapp.login;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -11,28 +13,25 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.VolleyError;
 import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
+import com.example.chatapp.manager.ApiManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class LoginAddressActivity extends AppCompatActivity {
-    public static final String LOGIN_URL = "http://34.92.61.98/api/auth/login";
-
     ProgressBar progressBar;
     Button loginBtn;
     EditText emailInput;
     EditText passwordInput;
     TextView forgotPassword;
     TextView signUp;
-
+    private SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +44,8 @@ public class LoginAddressActivity extends AppCompatActivity {
         passwordInput = findViewById(R.id.login_password);
         forgotPassword = findViewById(R.id.forgot_password_text_view);
         signUp = findViewById(R.id.sign_up_text_view);
+
+        sharedPreferences = getSharedPreferences("MyPrefs", Context.MODE_PRIVATE);
 
         setInProgress(false);
         loginBtn.setOnClickListener(v -> {
@@ -67,49 +68,44 @@ public class LoginAddressActivity extends AppCompatActivity {
 
     private void login(String username, String password) {
         setInProgress(true);
-        JSONObject request = new JSONObject();
-        try {
-            request.put("username_or_email", username);
-            request.put("password", password);
-
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
-        //Creating a string request
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, LOGIN_URL, request, response -> {
-                    //If we are getting success from server
-                    try {
-                        if (!response.get("access_token").toString().isEmpty()) {
-                            setInProgress(false);
-                            //Starting Home activity
-                            Intent intent = new Intent(LoginAddressActivity.this, MainActivity.class);
-                            intent.putExtra("access_token", response.get("access_token").toString());
-                            startActivity(intent);
-                            Toast.makeText(LoginAddressActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
-                        } else {
-                            //If the server response is not success
-                            //Displaying an error message on toast
-                            Toast.makeText(LoginAddressActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
-                            setInProgress(false);
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
+        ApiManager apiManager = ApiManager.getInstance(this);
+        apiManager.login(username, password, new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (!response.get("access_token").toString().isEmpty()) {
+                        setInProgress(false);
+                        // After successfully obtaining the access token
+                        String accessToken = response.get("access_token").toString(); // Replace with actual access token
+                        saveAccessToken(accessToken);
+                        //Starting Home activity
+                        Intent intent = new Intent(LoginAddressActivity.this, MainActivity.class);
+                        startActivity(intent);
+                        Toast.makeText(LoginAddressActivity.this, "Login Successful", Toast.LENGTH_SHORT).show();
+                    } else {
+                        //If the server response is not success
+                        //Displaying an error message on toast
+                        Toast.makeText(LoginAddressActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
+                        setInProgress(false);
                     }
-                },
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-                error -> {
-                    try {
-                        Toast.makeText(LoginAddressActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
-                    setInProgress(false);
-                });
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(LoginAddressActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+                setInProgress(false);
+            }
+        });
+    }
 
-        //Adding the string request to the queue
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
+    // Method to save access token locally
+    public void saveAccessToken(String accessToken) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("accessToken", accessToken);
+        editor.apply();
     }
 
     private void setInProgress(boolean isProgress) {

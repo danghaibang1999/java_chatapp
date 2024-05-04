@@ -12,16 +12,15 @@ import android.widget.Toast;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.VolleyError;
 import com.example.chatapp.R;
+import com.example.chatapp.manager.ApiManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class LoginForgotPasswordActivity extends AppCompatActivity {
     EditText emailInput;
@@ -29,7 +28,6 @@ public class LoginForgotPasswordActivity extends AppCompatActivity {
     ProgressBar progressBar;
     TextView signUp;
     TextView loginWithMail;
-    public static final String OTP_REQUEST_URL = "http://34.92.61.98/api/otps/request";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +46,6 @@ public class LoginForgotPasswordActivity extends AppCompatActivity {
         signUp.setOnClickListener(v -> {
             Intent intent = new Intent(this, SignUpActivity.class);
             startActivity(intent);
-            // Open sign up activity
         });
 
         loginWithMail.setOnClickListener(v -> {
@@ -64,40 +61,37 @@ public class LoginForgotPasswordActivity extends AppCompatActivity {
     private void requestOTP() {
         String email = emailInput.getText().toString();
         // Send OTP to email
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("email", email);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, OTP_REQUEST_URL, jsonObject, response -> {
-            //If we are getting success from server
-            try {
-                if (response.get("msg").equals("ok")) {
+        ApiManager apiManager = ApiManager.getInstance(this);
+        apiManager.requestOTP(email, new ApiManager.ApiListener() {
 
-                    Intent intent = new Intent(LoginForgotPasswordActivity.this, ResetPasswordActivity.class);
-                    intent.putExtra("email", emailInput.getText().toString());
-                    startActivity(intent);
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if ("ok".equals(response.getString("msg"))) {
 
+                        Intent intent = new Intent(LoginForgotPasswordActivity.this,
+                                ResetPasswordActivity.class);
+                        intent.putExtra("email", email);
+                        startActivity(intent);
 
-                } else {
-                    //If the server response is not success
-                    //Displaying an error message on toast
-                    Toast.makeText(LoginForgotPasswordActivity.this, "Invalid Information input", Toast.LENGTH_LONG).show();
+                    } else {
+                        // If the server response is not success
+                        // Displaying an error message on toast
+                        Toast.makeText(LoginForgotPasswordActivity.this,
+                                "Invalid Information input", Toast.LENGTH_LONG).show();
+                    }
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
             }
-        }, error -> {
-            try {
-                Toast.makeText(LoginForgotPasswordActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
+
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(LoginForgotPasswordActivity.this,
+                        new String(error.networkResponse.data, StandardCharsets.UTF_8),
+                        Toast.LENGTH_LONG).show();
             }
         });
 
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
     }
 }

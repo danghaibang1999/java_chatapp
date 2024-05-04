@@ -8,7 +8,6 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -29,6 +28,8 @@ import com.permissionx.guolindev.request.ExplainScope;
 import com.zegocloud.uikit.prebuilt.call.invite.widget.ZegoSendCallInvitationButton;
 import com.zegocloud.uikit.service.defines.ZegoUIKitUser;
 
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,12 +40,8 @@ import java.util.List;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
-import okhttp3.Callback;
-import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
@@ -250,138 +247,84 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void sendMessageToUser(String message, String messageType) {
-        // Send message to user
-//        chatroomModel.setLastMessageTime(Timestamp.now());
-//        chatroomModel.setLastMessageSenderId(FirebaseUtil.currentUserUid());
-//        chatroomModel.setLastMessage(message);
-//        chatroomModel.setLastMessageTypeName(messageType);
-//        FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel);
-//
-//        ChatMessageModel chatMessageModel = new ChatMessageModel(chatroomId, message, messageType, FirebaseUtil.currentUserUid(), Timestamp.now());
-//
-//        FirebaseUtil.getChatroomMessagesReference(chatroomId).add(chatMessageModel).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-//            @Override
-//            public void onComplete(@NonNull Task<DocumentReference> task) {
-//                if (!task.isSuccessful()) {
-//                    AndroidUtil.showToast(ChatActivity.this, "Failed to send message");
-//                } else {
-//                    if (messageType == "text") {
-//                        sendNotificationToUser(message);
-//                    } else if (messageType == "image") {
-//                        sendNotificationToUser("Image");
-//                    }
-//                }
-//            }
-//        });
-    }
-
-    private void getOrCreateChatroomModel() {
-        // Get or create chatroom model
-//        FirebaseUtil.getChatroomReference(chatroomId).get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                chatroomModel = task.getResult().toObject(ChatroomModel.class);
-//                if (chatroomModel == null) {
-//                    chatroomModel = new ChatroomModel(chatroomId,
-//                            Arrays.asList(FirebaseUtil.currentUserUid(), otherUser.getUserId()),
-//                            Timestamp.now(), "");
-//                }
-//                FirebaseUtil.getChatroomReference(chatroomId).set(chatroomModel);
-//            } else {
-//                AndroidUtil.showToast(this, "Failed to get chatroom");
-//            }
-//        });
-    }
-
-    private void sendNotificationToUser(String message) {
-        // Send notification to user
-//        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                UserModel currentUser = task.getResult().toObject(UserModel.class);
-//                try {
-//                    JSONObject jsonObject = new JSONObject();
-//                    JSONObject notification = new JSONObject();
-//                    notification.put("title", currentUser.getUsername());
-//                    notification.put("body", message);
-//                    JSONObject data = new JSONObject();
-//                    data.put("userId", currentUser.getUserId());
-//                    jsonObject.put("notification", notification);
-//                    jsonObject.put("data", data);
-//                    jsonObject.put("to", otherUser.getFcmToken());
-//                    callApi(jsonObject);
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-    }
-
-    void callApi(JSONObject jsonObject) {
-        MediaType JSON = MediaType.get("application/json");
-        OkHttpClient client = new OkHttpClient();
-        String url = "https://fcm.googleapis.com/fcm/send";
-        RequestBody body = RequestBody.create(jsonObject.toString(), JSON);
-        Request request = new Request.Builder()
-                .url(url)
-                .post(body)
-                .addHeader("Authorization", "Bearer AAAASz5-HW0:APA91bErWMpjmi8PMHTI-f4SYE9BJKfQ8l40eBt_rKnW46bHeo8kB2thswsbV1h4X0evhoupi22BSQNuROXPBAsa5WonIGioWzYGhg5K0uKpauFbkHinIKgLTubSsc6pbeMxLk60ybKP")
-                .build();
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(okhttp3.Call call, java.io.IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws java.io.IOException {
-                if (response.isSuccessful()) {
-                    String myResponse = response.body().string();
-                    System.out.println(myResponse);
-                }
-            }
-        });
-    }
-
     public String createID() {
         Date now = new Date();
         int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss").format(now));
         return chatroomId + '_' + id;
     }
 
-    private class SocketListener extends WebSocketListener {
+    private void initWebSocket() {
+        OkHttpClient client = new OkHttpClient();
+        Request request = new Request.Builder()
+                .url("ws://your_server_url/api/ws")
+                .build();
 
-        @Override
-        public void onOpen(WebSocket webSocket, Response response) {
-            super.onOpen(webSocket, response);
+        WebSocketListener webSocketListener = new WebSocketListener() {
+            @Override
+            public void onOpen(@NotNull WebSocket webSocket, okhttp3.Response response) {
+                super.onOpen(webSocket, response);
+                ChatActivity.this.webSocket = webSocket;
+                // Send a message to subscribe to new chat events
+                subscribeToNewChatEvents();
+            }
 
-            runOnUiThread(() -> {
-                Toast.makeText(ChatActivity.this,
-                        "Socket Connection Successful!",
-                        Toast.LENGTH_SHORT).show();
+            @Override
+            public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
+                super.onMessage(webSocket, text);
+                // Handle incoming messages
+                handleMessage(text);
+            }
 
-                initializeView();
-            });
+            @Override
+            public void onFailure(@NotNull WebSocket webSocket, @NotNull Throwable t, okhttp3.Response response) {
+                super.onFailure(webSocket, t, response);
+            }
+        };
 
+        webSocket = client.newWebSocket(request, webSocketListener);
+    }
+
+    private void subscribeToNewChatEvents() {
+        JSONObject subscribeMessage = new JSONObject();
+        try {
+            subscribeMessage.put("type", "subscribe");
+            subscribeMessage.put("list_user", new JSONArray().put("newChat"));
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
+        sendMessage(subscribeMessage.toString());
+    }
 
-        @Override
-        public void onMessage(WebSocket webSocket, String text) {
-            super.onMessage(webSocket, text);
+    private void handleMessage(String message) {
+        try {
+            JSONObject jsonMessage = new JSONObject(message);
+            String type = jsonMessage.getString("type");
+            switch (type) {
+                case "newChat":
+                    // Handle new chat event
+                    break;
+                case "chat":
+                    // Handle chat message
+                    break;
+                default:
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
 
-            runOnUiThread(() -> {
+    private void sendMessage(String message) {
+        if (webSocket != null) {
+            webSocket.send(message);
+        } else {
+        }
+    }
 
-                try {
-                    JSONObject jsonObject = new JSONObject(text);
-                    jsonObject.put("isSent", false);
-                    chatRecyclerAdapter.addItem(jsonObject);
-                    recyclerView.smoothScrollToPosition(chatRecyclerAdapter.getItemCount() - 1);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            });
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (webSocket != null) {
+            webSocket.close(1000, null);
         }
     }
 }

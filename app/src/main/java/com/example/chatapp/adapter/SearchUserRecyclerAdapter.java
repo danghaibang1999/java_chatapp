@@ -16,32 +16,35 @@ import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-public class SearchUserRecyclerAdapter extends FirestoreRecyclerAdapter<UserModel, SearchUserRecyclerAdapter.UserModelViewHolder> {
+import java.util.List;
+
+public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRecyclerAdapter.UserModelViewHolder> {
 
     Context context;
+    List<UserModel> userModelList;
 
-    public SearchUserRecyclerAdapter(@NonNull FirestoreRecyclerOptions<UserModel> options, Context context) {
-        super(options);
+    public SearchUserRecyclerAdapter(@NonNull List<UserModel> options, Context context) {
         this.context = context;
     }
 
+    @NonNull
     @Override
-    protected void onBindViewHolder(@NonNull UserModelViewHolder holder, int i, @NonNull UserModel userModel) {
+    public UserModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(context).inflate(R.layout.search_user_recycler_row, parent, false);
+        return new UserModelViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull UserModelViewHolder holder, int position) {
+        UserModel userModel = userModelList.get(position);
         holder.usernameText.setText(userModel.getUsername());
         holder.phoneText.setText(userModel.getPhone());
         if (userModel.getUserId().equals(MainActivity.currentUser.getUserId())) {
             holder.usernameText.setText(userModel.getUsername() + " (Me)");
+        } else {
+            holder.usernameText.setText(userModel.getUsername());
         }
-
-//        FirebaseUtil.getOtherProfilePicStorageRef(userModel.getUserId()).getDownloadUrl()
-//                .addOnCompleteListener(t -> {
-//                    if (t.isSuccessful()) {
-//                        AndroidUtil.setProfilePic(context, t.getResult(), holder.profilePic);
-//                    }
-//                });
 
         holder.itemView.setOnClickListener((v -> {
             Intent intent = new Intent(context, ChatActivity.class);
@@ -51,11 +54,14 @@ public class SearchUserRecyclerAdapter extends FirestoreRecyclerAdapter<UserMode
         }));
     }
 
-    @NonNull
     @Override
-    public UserModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.search_user_recycler_row, parent, false);
-        return new UserModelViewHolder(view);
+    public int getItemCount() {
+        return 0;
+    }
+
+    public void setUserModelList(List<UserModel> userModelList) {
+        this.userModelList = userModelList;
+        notifyDataSetChanged();
     }
 
     class UserModelViewHolder extends RecyclerView.ViewHolder {

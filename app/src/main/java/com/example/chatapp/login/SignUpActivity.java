@@ -11,19 +11,19 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
+import com.android.volley.VolleyError;
 import com.example.chatapp.R;
+import com.example.chatapp.manager.ApiManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 
 public class SignUpActivity extends AppCompatActivity {
 
+    public static final String CREATE_USER_URL = "http://34.92.61.98/api/users";
     ProgressBar progressBar;
     Button signUpBtn;
     EditText usernameInput;
@@ -33,7 +33,6 @@ public class SignUpActivity extends AppCompatActivity {
     TextView forgotPassword;
     TextView login;
     TextView loginWithPhone;
-    public static final String CREATE_USER_URL = "http://34.92.61.98/api/users";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +55,8 @@ public class SignUpActivity extends AppCompatActivity {
             String phone = phoneInput.getText().toString();
             String email = emailInput.getText().toString();
             String password = passwordInput.getText().toString();
-            signup(email, password, username, phone);
+            String avatarUrl = "https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png";
+            signup(email, password, username, phone, avatarUrl);
         });
 
         forgotPassword.setOnClickListener(v -> {
@@ -77,56 +77,40 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
-    private void signup(String email, String password, String username, String phone) {
+    private void signup(String email, String password, String username, String phone, String avatarUrl) {
         setInProgress(true);
 
-        JSONObject request = new JSONObject();
-        try {
-            request.put("username", username);
-            request.put("phone", phone);
-            request.put("email", email);
-            request.put("password", password);
-            request.put("avatar_url", "https://w7.pngwing.com/pngs/340/946/png-transparent-avatar-user-computer-icons-software-developer-avatar-child-face-heroes-thumbnail.png");
-            request.put("name", username);
-        } catch (JSONException e) {
-            throw new RuntimeException(e);
-        }
+        ApiManager apiManager = ApiManager.getInstance(this);
+        apiManager.signUp(username, username, email, password, phone, avatarUrl, new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                try {
+                    if (response.get("msg").equals("ok")) {
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest
-                (Request.Method.POST, CREATE_USER_URL, request, response -> {
-                    //If we are getting success from server
-                    try {
-                        if (response.get("msg").equals("ok")) {
-
-                            setInProgress(false);
-                            Toast.makeText(SignUpActivity.this, "OTP send Successful", Toast.LENGTH_SHORT).show();
-                            //Starting Home activitfalse
-                            Intent intent = new Intent(SignUpActivity.this, LoginOTPActivity.class);
-                            intent.putExtra("isForgotPassword", false);
-                            intent.putExtra("email", email);
-                            startActivity(intent);
-                        } else {
-                            //If the server response is not success
-                            //Displaying an error message on toast
-                            Toast.makeText(SignUpActivity.this, "Invalid Information input", Toast.LENGTH_LONG).show();
-                            setInProgress(false);
-                        }
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
+                        setInProgress(false);
+                        Toast.makeText(SignUpActivity.this, "OTP send Successful", Toast.LENGTH_SHORT).show();
+                        //Starting Home activitfalse
+                        Intent intent = new Intent(SignUpActivity.this, LoginOTPActivity.class);
+                        intent.putExtra("email", email);
+                        intent.putExtra("password", password);
+                        startActivity(intent);
+                    } else {
+                        //If the server response is not success
+                        //Displaying an error message on toast
+                        Toast.makeText(SignUpActivity.this, "Invalid Information input", Toast.LENGTH_LONG).show();
+                        setInProgress(false);
                     }
-                }, error -> {
-                    try {
-                        Toast.makeText(SignUpActivity.this, new String(error.networkResponse.data, "UTF-8"), Toast.LENGTH_LONG).show();
-                    } catch (UnsupportedEncodingException e) {
-                        throw new RuntimeException(e);
-                    }
-                    setInProgress(false);
-                });
+                } catch (JSONException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-
-        //Adding the string request to the queue
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(jsonObjectRequest);
+            @Override
+            public void onError(VolleyError error) {
+                Toast.makeText(SignUpActivity.this, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+                setInProgress(false);
+            }
+        });
     }
 
     private void setInProgress(boolean isProgress) {
