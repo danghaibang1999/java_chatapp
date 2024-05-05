@@ -2,6 +2,8 @@ package com.example.chatapp;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
@@ -17,9 +19,8 @@ import com.example.chatapp.models.Conversation;
 import com.example.chatapp.models.Friend;
 import com.example.chatapp.models.FriendRequest;
 import com.example.chatapp.models.UserModel;
+import com.example.chatapp.util.UserListParser;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -114,6 +115,24 @@ public class SearchUserActivity extends AppCompatActivity {
             onBackPressed();
         }));
 
+        searchInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Perform search operation when text is changed
+                String searchTerm = s.toString();
+                setupRecyclerView(searchTerm);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
         searchButton.setOnClickListener((v -> {
             String searchTerm = searchInput.getText().toString().trim();
             if (searchTerm.isEmpty() || searchTerm.length() < 3) {
@@ -143,24 +162,9 @@ public class SearchUserActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 // Handle the response here
                 // Pass the response JSONObject to the adapter for display
-                JSONArray conversationsArray = null;
-                List<UserModel> userList = new ArrayList<>();
-                try {
-                    conversationsArray = response.getJSONArray("list");
-                    for (int i = 0; i < conversationsArray.length(); i++) {
-                        JSONObject convObject = conversationsArray.getJSONObject(i);
-                        UserModel userModel = new UserModel();
-                        userModel.setId(convObject.getString("id"));
-                        userModel.setName(convObject.getString("name"));
-                        userModel.setEmail(convObject.getString("email"));
-                        userModel.setCreatedAt(convObject.getString("created_at"));
-                        userModel.setUpdatedAt(convObject.getString("updated_at"));
-                        userList.add(userModel);
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
-                }
-                searchUserRecyclerAdapter.setUserModelList(generateDummyUserData(5));
+                List<UserModel> userList = UserListParser.parseUserList(response.toString());
+
+                searchUserRecyclerAdapter.setUserModelList(userList);
             }
 
             @Override

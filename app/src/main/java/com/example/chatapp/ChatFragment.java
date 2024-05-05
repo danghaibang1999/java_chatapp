@@ -15,6 +15,7 @@ import com.android.volley.VolleyError;
 import com.example.chatapp.adapter.RecentChatRecyclerAdapter;
 import com.example.chatapp.manager.ApiManager;
 import com.example.chatapp.models.Conversation;
+import com.example.chatapp.util.AndroidUtil;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,9 +52,9 @@ public class ChatFragment extends Fragment {
 
     private void fetchChatroomModelsAndUpdateList() {
         SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", 0);
-        String userId = sharedPreferences.getString("id", null);
+        String userId = AndroidUtil.getCurrentUserModel(getContext()).getId();
         String accessToken = sharedPreferences.getString("accessToken", null);
-        if (userId == null || accessToken == null) {
+        if (accessToken == null || accessToken.isEmpty()) {
             Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
         } else {
             ApiManager.getInstance(getContext()).getUser(userId, accessToken, new ApiManager.ApiListener() {
@@ -61,7 +62,10 @@ public class ChatFragment extends Fragment {
                 public void onResponse(JSONObject response) {
                     JSONArray conversationsArray = null;
                     try {
-                        conversationsArray = response.getJSONArray("conversations");
+                        conversationsArray = response.optJSONArray("conversations");
+                        if (conversationsArray == null) {
+                            conversationsArray = new JSONArray();
+                        }
                         List<Conversation> conversations = new ArrayList<>();
                         for (int i = 0; i < conversationsArray.length(); i++) {
                             JSONObject convObject = conversationsArray.getJSONObject(i);

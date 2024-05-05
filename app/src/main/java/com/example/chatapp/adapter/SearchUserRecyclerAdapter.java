@@ -2,6 +2,7 @@ package com.example.chatapp.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +12,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.VolleyError;
 import com.example.chatapp.ChatActivity;
-import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
+import com.example.chatapp.manager.ApiManager;
+import com.example.chatapp.models.Conversation;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
+import com.example.chatapp.util.DataStorageManager;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRecyclerAdapter.UserModelViewHolder> {
@@ -26,6 +34,7 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
 
     public SearchUserRecyclerAdapter(@NonNull List<UserModel> options, Context context) {
         this.context = context;
+        this.userModelList = options; // Assign options to userModelList
     }
 
     @NonNull
@@ -40,7 +49,8 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         UserModel userModel = userModelList.get(position);
         holder.usernameText.setText(userModel.getUsername());
         holder.phoneText.setText(userModel.getPhone());
-        if (userModel.getId().equals(MainActivity.currentUser.getId())) {
+        AndroidUtil.setProfilePic(context, Uri.parse(userModel.getAvatarUrl()), holder.profilePic);
+        if (userModel.getId().equals(AndroidUtil.getCurrentUserModel(context).getId())) {
             holder.usernameText.setText(userModel.getUsername() + " (Me)");
         } else {
             holder.usernameText.setText(userModel.getUsername());
@@ -49,14 +59,69 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         holder.itemView.setOnClickListener((v -> {
             Intent intent = new Intent(context, ChatActivity.class);
             AndroidUtil.passUserModelAsIntent(intent, userModel);
+            String chatroomId = getChatroomId(userModel.getId(), AndroidUtil.getCurrentUserModel(context).getId());
+            intent.putExtra("chatroomId", chatroomId);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }));
     }
 
+    @NonNull
+    private String getChatroomId(String userId, String currentUserId) {
+        DataStorageManager dataStorageManager = new DataStorageManager(context);
+        String accessToken = dataStorageManager.getAccessToken();
+        List<Conversation> conversations = dataStorageManager.getConversations();
+        List<String> conversationIds = new ArrayList<>();
+        if (conversations == null || conversations.size() == 0) {
+            return "";
+        }
+        for (Conversation conversation : conversations) {
+            String conversationId = conversation.getId();
+            ApiManager.getInstance(context).getConversations(accessToken, conversationId, new ApiManager.ApiListener() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    String conversationId = response.optString("id");
+                    JSONArray usersArray = response.optJSONArray("users");
+
+                    List<String> userIds = new ArrayList<>();
+                    // Assuming otherUserId and currentUserId are already defined somewhere in your code
+                    boolean foundOtherUserId = false;
+                    boolean foundCurrentUserId = false;
+
+                    // Extract user IDs from the users array and add them to the list
+                    for (int i = 0; i < usersArray.length(); i++) {
+                        JSONObject userObject = usersArray.optJSONObject(i);
+                        String userId = userObject.optString("id");
+                        userIds.add(userId);
+                        if (userId.equals(userId)) {
+                            foundOtherUserId = true;
+                        } else if (userId.equals(currentUserId)) {
+                            foundCurrentUserId = true;
+                        }
+                    }
+
+                    // Check if both otherUserId and currentUserId are found in the list
+                    if (foundOtherUserId && foundCurrentUserId) {
+                        conversations.add(conversation);
+                    }
+                }
+
+                @Override
+                public void onError(VolleyError error) {
+
+                }
+            });
+        }
+        if (conversationIds.size() > 0) {
+            return conversationIds.get(0);
+        } else {
+            return "";
+        }
+    }
+
     @Override
     public int getItemCount() {
-        return 0;
+        return userModelList.size(); // Return the size of userModelList
     }
 
     public void setUserModelList(List<UserModel> userModelList) {

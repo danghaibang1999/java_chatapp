@@ -1,15 +1,13 @@
 package com.example.chatapp.models;
 
-import com.google.firebase.Timestamp;
-
 public class ChatMessageModel {
     private String message;
     private String messageType;
     private String senderId;
-    private Timestamp timestamp;
+    private String timestamp;
     private String chatroomId;
 
-    public ChatMessageModel(String chatroomId, String message, String messageType, String senderId, Timestamp timestamp) {
+    public ChatMessageModel(String chatroomId, String message, String messageType, String senderId, String timestamp) {
         this.message = message;
         this.senderId = senderId;
         this.timestamp = timestamp;
@@ -53,11 +51,11 @@ public class ChatMessageModel {
         this.senderId = senderId;
     }
 
-    public Timestamp getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(Timestamp timestamp) {
+    public void setTimestamp(String timestamp) {
         this.timestamp = timestamp;
     }
 }

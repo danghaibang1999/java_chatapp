@@ -246,6 +246,41 @@ public class ApiManager {
         requestQueue.add(jsonObjectRequest);
     }
 
+    public void getChatList(String accessToken, String conversationId, int page, int pageSize, String sortType, String search, final ApiListener listener) {
+        // Construct the request URL
+        String url = BASE_URL + "conversations/" + conversationId + "/chats?page=" + page + "&page_size=" + pageSize;
+        if (sortType != null && !sortType.isEmpty()) {
+            url += "&sort_type=" + sortType;
+        }
+        if (search != null && !search.isEmpty()) {
+            url += "&search=" + search;
+        }
+
+        // Make the API request with the access token in the header
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null,
+                response -> {
+                    if (listener != null) {
+                        listener.onResponse(response);
+                    }
+                },
+                error -> {
+                    if (listener != null) {
+                        listener.onError(error);
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                // Set the access token in the header
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + accessToken);
+                return headers;
+            }
+        };
+
+        // Add the request to the request queue
+        requestQueue.add(jsonObjectRequest);
+    }
+
 
     // Define an interface for API callbacks
     public interface ApiListener {

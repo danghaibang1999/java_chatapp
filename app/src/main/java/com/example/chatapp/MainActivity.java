@@ -49,8 +49,6 @@ import im.zego.zim.enums.ZIMConnectionState;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
-    private static final String USER_URL = "http://34.92.61.98/api/user/profile";
-    public static UserModel currentUser;
     BottomNavigationView bottomNavigationView;
     ImageButton searchButton;
     ImageButton groupButton;
@@ -157,7 +155,10 @@ public class MainActivity extends AppCompatActivity {
                     String username = response.getString("username");
 
                     // Now handle conversations, friend requests, and friends arrays
-                    JSONArray conversationsArray = response.getJSONArray("conversations");
+                    JSONArray conversationsArray = response.optJSONArray("conversations");
+                    if (conversationsArray == null) {
+                        conversationsArray = new JSONArray();
+                    }
                     List<Conversation> conversations = new ArrayList<>();
                     for (int i = 0; i < conversationsArray.length(); i++) {
                         JSONObject convObject = conversationsArray.getJSONObject(i);
@@ -170,7 +171,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Handle friend requests
-                    JSONArray friendRequestsArray = response.getJSONArray("friend_requests");
+                    JSONArray friendRequestsArray = response.optJSONArray("friend_requests");
+                    if (friendRequestsArray == null) {
+                        friendRequestsArray = new JSONArray();
+                    }
                     List<FriendRequest> friendRequests = new ArrayList<>();
                     for (int i = 0; i < friendRequestsArray.length(); i++) {
                         JSONObject friendRequestObject = friendRequestsArray.getJSONObject(i);
@@ -180,7 +184,10 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Handle friends
-                    JSONArray friendsArray = response.getJSONArray("friends");
+                    JSONArray friendsArray = response.optJSONArray("friends");
+                    if (friendsArray == null) {
+                        friendsArray = new JSONArray();
+                    }
                     List<Friend> friends = new ArrayList<>();
                     for (int i = 0; i < friendsArray.length(); i++) {
                         JSONObject friendObject = friendsArray.getJSONObject(i);
@@ -234,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             if (!response.toString().isEmpty()) {
                 // Process user profile response...
-                currentUser = new UserModel();
+                UserModel currentUser = new UserModel();
                 currentUser.setId(response.getString("id"));
                 currentUser.setName(response.getString("name"));
                 currentUser.setEmail(response.getString("email"));

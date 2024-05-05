@@ -22,6 +22,26 @@ public class UserModel {
         // Required empty public constructor
     }
 
+    public UserModel(String avatarUrl, List<Conversation> conversations,
+                     String createdAt, String email, List<FriendRequest> friendRequests,
+                     List<Friend> friends, String id, String lastLoggedIn, String name,
+                     String phone, String role, String status, String updatedAt, String username) {
+        this.avatarUrl = avatarUrl;
+        this.conversations = conversations;
+        this.createdAt = createdAt;
+        this.email = email;
+        this.friendRequests = friendRequests;
+        this.friends = friends;
+        this.id = id;
+        this.lastLoggedIn = lastLoggedIn;
+        this.name = name;
+        this.phone = phone;
+        this.role = role;
+        this.status = status;
+        this.updatedAt = updatedAt;
+        this.username = username;
+    }
+
     public String getAvatarUrl() {
         return avatarUrl;
     }

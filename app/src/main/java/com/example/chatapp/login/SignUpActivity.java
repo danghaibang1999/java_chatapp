@@ -18,7 +18,6 @@ import com.example.chatapp.manager.ApiManager;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
 public class SignUpActivity extends AppCompatActivity {

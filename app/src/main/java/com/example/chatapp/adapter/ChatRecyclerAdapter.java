@@ -1,6 +1,7 @@
 package com.example.chatapp.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,84 +12,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.models.ChatMessageModel;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.example.chatapp.models.UserModel;
+import com.example.chatapp.util.AndroidUtil;
 
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 
-public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageModel, ChatRecyclerAdapter.ChatModelViewHolder> {
+public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapter.ChatModelViewHolder> {
 
-    private final List<JSONObject> messages = new ArrayList<>();
     Context context;
+    List<ChatMessageModel> chatMessageModels;
+    UserModel otherUser;
 
-    public ChatRecyclerAdapter(@NonNull FirestoreRecyclerOptions<ChatMessageModel> options, Context context) {
-        super(options);
+    public ChatRecyclerAdapter(List<ChatMessageModel> chatMessageModelList, UserModel otherUser, Context context) {
+        this.chatMessageModels = chatMessageModelList;
         this.context = context;
-    }
-
-    @Override
-    protected void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position, @NonNull ChatMessageModel model) {
-        if (model.getSenderId().equals(MainActivity.currentUser.getId())) {
-            holder.textLeftChatLayout.setVisibility(View.GONE);
-            holder.imageLeftChatLayout.setVisibility(View.GONE);
-            if (model.getMessageType().equals("image")) {
-                holder.imageRightChatLayout.setVisibility(View.VISIBLE);
-                holder.textRightChatLayout.setVisibility(View.GONE);
-//                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
-//                        .addOnCompleteListener(t -> {
-//                            if (t.isSuccessful()) {
-//                                AndroidUtil.setChatImage(context, t.getResult(), holder.rightChatImageView);
-//                            }
-//                        });
-            } else if (model.getMessageType().equals("text")) {
-                holder.imageRightChatLayout.setVisibility(View.GONE);
-                holder.rightChatImageView.setVisibility(View.GONE);
-                holder.rightChatTextview.setVisibility(View.VISIBLE);
-                holder.rightChatTextview.setText(model.getMessage());
-            }
-            holder.leftProfilePic.setVisibility(View.GONE);
-            holder.rightProfilePic.setVisibility(View.VISIBLE);
-//            FirebaseUtil.getCurrentProfilePicStorageRef().getDownloadUrl()
-//                    .addOnCompleteListener(t -> {
-//                        if (t.isSuccessful()) {
-//                            AndroidUtil.setProfilePic(context, t.getResult(), holder.rightProfilePic);
-//                        }
-//                    });
-        } else {
-            holder.textRightChatLayout.setVisibility(View.GONE);
-            holder.imageRightChatLayout.setVisibility(View.GONE);
-            if (model.getMessageType().equals("image")) {
-                holder.imageLeftChatLayout.setVisibility(View.VISIBLE);
-                holder.textLeftChatLayout.setVisibility(View.GONE);
-//                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
-//                        .addOnCompleteListener(t -> {
-//                            if (t.isSuccessful()) {
-//                                AndroidUtil.setChatImage(context, t.getResult(), holder.leftChatImageView);
-//                            }
-//                        });
-            } else if (model.getMessageType().equals("text")) {
-                holder.imageLeftChatLayout.setVisibility(View.GONE);
-                holder.textLeftChatLayout.setVisibility(View.VISIBLE);
-                holder.leftChatTextview.setVisibility(View.VISIBLE);
-                holder.leftChatTextview.setText(model.getMessage());
-            }
-            holder.rightProfilePic.setVisibility(View.GONE);
-            holder.leftProfilePic.setVisibility(View.VISIBLE);
-
-//            FirebaseUtil.getOtherProfilePicStorageRef(model.getSenderId()).getDownloadUrl()
-//                    .addOnCompleteListener(t -> {
-//                        if (t.isSuccessful()) {
-//                            AndroidUtil.setProfilePic(context, t.getResult(), holder.leftProfilePic);
-//                        }
-//                    });
-        }
+        this.otherUser = otherUser;
     }
 
     @NonNull
@@ -98,8 +39,68 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
         return new ChatModelViewHolder(view);
     }
 
-    public void addItem(JSONObject jsonObject) {
-        messages.add(jsonObject);
+    @Override
+    public void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position) {
+        ChatMessageModel model = chatMessageModels.get(position);
+        if (model.getSenderId().equals(AndroidUtil.getCurrentUserModel(context).getId())) {
+            holder.textLeftChatLayout.setVisibility(View.GONE);
+            holder.imageLeftChatLayout.setVisibility(View.GONE);
+//            if (model.getMessageType().equals("image")) {
+//                holder.imageRightChatLayout.setVisibility(View.VISIBLE);
+//                holder.textRightChatLayout.setVisibility(View.GONE);
+//                //AndroidUtil.setChatImage(context, model.getMessage(), holder.rightChatImageView);
+//            } else if (model.getMessageType().equals("text")) {
+//                holder.imageRightChatLayout.setVisibility(View.GONE);
+//                holder.rightChatImageView.setVisibility(View.GONE);
+//                holder.rightChatTextview.setVisibility(View.VISIBLE);
+//                holder.rightChatTextview.setText(model.getMessage());
+//            }
+
+            holder.imageRightChatLayout.setVisibility(View.GONE);
+            holder.rightChatImageView.setVisibility(View.GONE);
+            holder.rightChatTextview.setVisibility(View.VISIBLE);
+            holder.rightChatTextview.setText(model.getMessage());
+
+            holder.leftProfilePic.setVisibility(View.GONE);
+            holder.rightProfilePic.setVisibility(View.VISIBLE);
+            AndroidUtil.setProfilePic(context, Uri.parse(AndroidUtil.getCurrentUserModel(context).getAvatarUrl()), holder.rightProfilePic);
+        } else {
+            holder.textRightChatLayout.setVisibility(View.GONE);
+            holder.imageRightChatLayout.setVisibility(View.GONE);
+//            if (model.getMessageType().equals("image")) {
+//                holder.imageLeftChatLayout.setVisibility(View.VISIBLE);
+//                holder.textLeftChatLayout.setVisibility(View.GONE);
+//                //AndroidUtil.setChatImage(context, model.getMessage(), holder.leftChatImageView);
+//            } else if (model.getMessageType().equals("text")) {
+//                holder.imageLeftChatLayout.setVisibility(View.GONE);
+//                holder.textLeftChatLayout.setVisibility(View.VISIBLE);
+//                holder.leftChatTextview.setVisibility(View.VISIBLE);
+//                holder.leftChatTextview.setText(model.getMessage());
+//            }
+
+            holder.imageLeftChatLayout.setVisibility(View.GONE);
+            holder.textLeftChatLayout.setVisibility(View.VISIBLE);
+            holder.leftChatTextview.setVisibility(View.VISIBLE);
+            holder.leftChatTextview.setText(model.getMessage());
+
+            holder.rightProfilePic.setVisibility(View.GONE);
+            holder.leftProfilePic.setVisibility(View.VISIBLE);
+            AndroidUtil.setProfilePic(context, Uri.parse(otherUser.getAvatarUrl()), holder.leftProfilePic);
+        }
+    }
+
+    @Override
+    public int getItemCount() {
+        return chatMessageModels.size();
+    }
+
+    public void addItem(ChatMessageModel messageModel) {
+        chatMessageModels.add(messageModel);
+        notifyDataSetChanged();
+    }
+
+    public void setChatMessageModels(List<ChatMessageModel> chatMessageModels) {
+        this.chatMessageModels = chatMessageModels;
         notifyDataSetChanged();
     }
 

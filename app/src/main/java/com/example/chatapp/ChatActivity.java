@@ -16,10 +16,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.VolleyError;
 import com.example.chatapp.adapter.ChatRecyclerAdapter;
-import com.example.chatapp.models.ChatroomModel;
+import com.example.chatapp.manager.ApiManager;
+import com.example.chatapp.models.ChatMessageModel;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
+import com.example.chatapp.util.DataStorageManager;
 import com.github.dhaval2404.imagepicker.ImagePicker;
 import com.permissionx.guolindev.PermissionX;
 import com.permissionx.guolindev.callback.ExplainReasonCallback;
@@ -33,24 +36,20 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import kotlin.Unit;
-import kotlin.jvm.functions.Function1;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.WebSocket;
 import okhttp3.WebSocketListener;
 
 public class ChatActivity extends AppCompatActivity {
-
-    private final String SERVER_PATH = "https://34.92.61.98/api/ws";
     UserModel otherUser;
     String chatroomId;
-    ChatroomModel chatroomModel;
     ChatRecyclerAdapter chatRecyclerAdapter;
     EditText messageInput;
     ImageButton sendMessageButton;
@@ -70,13 +69,16 @@ public class ChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat);
 
+        chatroomId = getIntent().getStringExtra("chatroomId");
+        initializeView();
+        initWebSocket();
+
         //initiateSocketConnection();
     }
 
 
     private void initializeView() {
-        otherUser = AndroidUtil.getUserModelAsIntent(getIntent());
-//        chatroomId = FirebaseUtil.getChatroomId(FirebaseUtil.currentUserUid(), otherUser.getUserId());
+        otherUser = AndroidUtil.getOtherUserModelAsIntent(getIntent());
         messageInput = findViewById(R.id.chat_message_input);
         sendImageMessageButton = findViewById(R.id.message_image_send_btn);
         sendMessageButton = findViewById(R.id.message_send_btn);
@@ -87,20 +89,11 @@ public class ChatActivity extends AppCompatActivity {
         videoCallButton = findViewById(R.id.chat_video_btn);
 
         otherUserName.setText(otherUser.getUsername());
-//        FirebaseUtil.getOtherProfilePicStorageRef(otherUser.getUserId()).getDownloadUrl()
-//                .addOnCompleteListener(t -> {
-//                    if (t.isSuccessful()) {
-//                        AndroidUtil.setProfilePic(this, t.getResult(), profilePic);
-//                    }
-//                });
+        AndroidUtil.setProfilePic(this, Uri.parse(otherUser.getAvatarUrl()), profilePic);
 
         voiceCallButton = findViewById(R.id.chat_call_btn);
         voiceCallButton.setIsVideoCall(false);
 
-        //resourceID can be used to specify the ringtone of an offline call invitation,
-        //which must be set to the same value as the Push Resource ID in ZEGOCLOUD Admin Console.
-        //This only takes effect when the notifyWhenAppRunningInBackgroundOrQuit is true.
-        //        newVoiceCall.setResourceID("zegouikit_call");
         voiceCallButton.setResourceID("zego_data");
         voiceCallButton.setOnClickListener(v -> {
             String targetUserID = otherUser.getId();
@@ -116,10 +109,6 @@ public class ChatActivity extends AppCompatActivity {
         videoCallButton = findViewById(R.id.chat_video_btn);
         videoCallButton.setIsVideoCall(true);
 
-        //resourceID can be used to specify the ringtone of an offline call invitation,
-        //which must be set to the same value as the Push Resource ID in ZEGOCLOUD Admin Console.
-        //This only takes effect when the notifyWhenAppRunningInBackgroundOrQuit is true.
-        //        newVoiceCall.setResourceID("zegouikit_call");
         videoCallButton.setResourceID("zego_data");
         videoCallButton.setOnClickListener(v -> {
             String targetUserID = otherUser.getId();
@@ -156,12 +145,9 @@ public class ChatActivity extends AppCompatActivity {
             ImagePicker.with(this)
                     .cropSquare()
                     .compress(512).maxResultSize(512, 512)
-                    .createIntent(new Function1<Intent, Unit>() {
-                        @Override
-                        public Unit invoke(Intent intent) {
-                            imagePickerLauncher.launch(intent);
-                            return null;
-                        }
+                    .createIntent(intent -> {
+                        imagePickerLauncher.launch(intent);
+                        return null;
                     });
         });
 
@@ -176,27 +162,15 @@ public class ChatActivity extends AppCompatActivity {
                 return;
             }
 
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("type", "");
-                jsonObject.put("list_user", "[]");
+            sendNewChatMessage(message, chatroomId, AndroidUtil.getCurrentUserModel(this).getId());
 
-                JSONObject chat = new JSONObject();
-                chat.put("from", MainActivity.currentUser.getId());
-                chat.put("to", chatroomId);
-                chat.put("message", message);
+            ChatMessageModel chatMessageModel = new ChatMessageModel();
+            chatMessageModel.setMessage(message);
+            chatMessageModel.setSenderId(AndroidUtil.getCurrentUserModel(this).getId());
+            chatMessageModel.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
+            chatRecyclerAdapter.addItem(chatMessageModel);
 
-                jsonObject.put("chat", chat);
-
-                webSocket.send(jsonObject.toString());
-
-                jsonObject.put("isSent", true);
-                chatRecyclerAdapter.addItem(jsonObject);
-
-                recyclerView.smoothScrollToPosition(chatRecyclerAdapter.getItemCount() - 1);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+            recyclerView.smoothScrollToPosition(chatRecyclerAdapter.getItemCount() - 1);
         });
 
         setupChatRecyclerView();
@@ -217,26 +191,67 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setupChatRecyclerView() {
-        // Setup chat recycler view
-//        Query query = FirebaseUtil.getChatroomMessagesReference(chatroomId)
-//                .orderBy("timestamp", Query.Direction.DESCENDING);
-//
-//        FirestoreRecyclerOptions<ChatMessageModel> options
-//                = new FirestoreRecyclerOptions.Builder<ChatMessageModel>()
-//                .setQuery(query, ChatMessageModel.class).build();
 
-        chatRecyclerAdapter = new ChatRecyclerAdapter(null, getApplicationContext());
+        chatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<>(), otherUser, getApplicationContext());
         LinearLayoutManager manager = new LinearLayoutManager(this);
         manager.setReverseLayout(true);
         recyclerView.setLayoutManager(manager);
         recyclerView.setAdapter(chatRecyclerAdapter);
-        chatRecyclerAdapter.startListening();
         chatRecyclerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
                 recyclerView.smoothScrollToPosition(0);
             }
         });
+
+        if (chatroomId.isEmpty()) {
+
+        } else {
+            getChatMessages(1, 20, "desc", "");
+        }
+    }
+
+    private void getChatMessages(int page, int pageSize, String sortType, String search) {
+        DataStorageManager dataStorageManager = new DataStorageManager(this);
+        String accessToken = dataStorageManager.getAccessToken();
+
+        // Call ApiManager to get chat messages
+        ApiManager.getInstance(this).getChatList(accessToken, chatroomId, page, pageSize, sortType, search, new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                // Parse the response and update the adapter with chat messages
+                List<ChatMessageModel> chatMessages = parseChatMessages(response);
+                chatRecyclerAdapter.setChatMessageModels(chatMessages);
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                // Handle error
+            }
+        });
+    }
+
+    private List<ChatMessageModel> parseChatMessages(JSONObject response) {
+        // Parse JSON response and create list of ChatMessage objects
+        List<ChatMessageModel> chatMessages = new ArrayList<>();
+        try {
+            JSONArray chatList = response.optJSONArray("list");
+            for (int i = 0; i < chatList.length(); i++) {
+                JSONObject chatObject = chatList.getJSONObject(i);
+                String messageId = chatObject.getString("id");
+                String message = chatObject.getString("message");
+                String fromUserId = chatObject.getString("from");
+                String toUserId = chatObject.getString("to");
+                String timestamp = chatObject.getString("timestamp");
+
+                // Create a ChatMessage object and add it to the list
+                ChatMessageModel chatMessage = new ChatMessageModel(messageId, message, fromUserId, toUserId, timestamp);
+                chatMessages.add(chatMessage);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return chatMessages;
     }
 
     public String createID() {
@@ -248,7 +263,7 @@ public class ChatActivity extends AppCompatActivity {
     private void initWebSocket() {
         OkHttpClient client = new OkHttpClient();
         Request request = new Request.Builder()
-                .url("ws://your_server_url/api/ws")
+                .url("http://34.92.61.98/api/ws")
                 .build();
 
         WebSocketListener webSocketListener = new WebSocketListener() {
@@ -277,40 +292,65 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void subscribeToNewChatEvents() {
-        JSONObject subscribeMessage = new JSONObject();
-        try {
-            subscribeMessage.put("type", "subscribe");
-            subscribeMessage.put("list_user", new JSONArray().put("newChat"));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        sendMessage(subscribeMessage.toString());
+        // Subscribe to new chat events, if required
     }
 
     private void handleMessage(String message) {
-        try {
-            JSONObject jsonMessage = new JSONObject(message);
-            String type = jsonMessage.getString("type");
-            switch (type) {
-                case "newChat":
-                    // Handle new chat event
-                    break;
-                case "chat":
-                    // Handle chat message
-                    break;
-                default:
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        // Handle incoming messages here
+        // For example, update the UI with the received message
     }
 
     private void sendMessage(String message) {
         if (webSocket != null) {
             webSocket.send(message);
-        } else {
         }
     }
+
+    // Call this method when you want to send a chat message
+    private void sendChatMessage(String message) {
+        // Construct the chat message format according to your WebSocket API
+        JSONObject chatMessage = new JSONObject();
+        try {
+            chatMessage.put("type", "chat");
+            chatMessage.put("message", message);
+            // Add other necessary fields as per your API requirements
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Convert the JSON object to string and send it over WebSocket
+        sendMessage(chatMessage.toString());
+    }
+
+    private void sendNewChatMessage(String message, String conversationId, String fromUserId) {
+        // Construct the new chat message format according to your WebSocket API
+        JSONObject newChatMessage = new JSONObject();
+        JSONObject chatData = new JSONObject();
+        try {
+            newChatMessage.put("type", "");
+
+            chatData.put("from", fromUserId);
+            chatData.put("to", conversationId);
+            chatData.put("message", message);
+
+            newChatMessage.put("chat", chatData);
+
+            // Check if it's a new conversation
+            if (conversationId == null || conversationId.isEmpty()) {
+                newChatMessage.put("type", "newChat");
+                JSONArray listUser = new JSONArray();
+                // Add user IDs to the list_user array
+                // For example, if you're creating a conversation with user IDs userId1 and userId2
+                listUser.put(otherUser.getId());
+                listUser.put(AndroidUtil.getCurrentUserModel(this).getId());
+                newChatMessage.put("list_user", listUser);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        // Convert the JSON object to string and send it over WebSocket
+        sendMessage(newChatMessage.toString());
+    }
+
 
     @Override
     protected void onDestroy() {

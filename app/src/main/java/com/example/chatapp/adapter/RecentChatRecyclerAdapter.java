@@ -1,18 +1,32 @@
 package com.example.chatapp.adapter;
 
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.VolleyError;
+import com.example.chatapp.ChatActivity;
 import com.example.chatapp.R;
+import com.example.chatapp.manager.ApiManager;
 import com.example.chatapp.models.Conversation;
+import com.example.chatapp.models.UserModel;
+import com.example.chatapp.util.AndroidUtil;
+import com.example.chatapp.util.DataStorageManager;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.List;
 
 public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRecyclerAdapter.ChatroomModelViewHolder> {
@@ -27,44 +41,75 @@ public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRe
 
     @Override
     public void onBindViewHolder(@NonNull ChatroomModelViewHolder holder, int i) {
-//        ChatroomModel model = chatroomModels.get(i);
-//        String otherUserId = model.getUserIds().get(0);
-//
-//        AndroidUtil.setProfilePic(context, t.getResult(), holder.profilePic);
-//        if (otherUser.getUserId().equals(FirebaseUtil.currentUserUid())) {
-//            holder.usernameText.setText(otherUser.getUsername() + " (You)");
-//        } else {
-//            holder.usernameText.setText(otherUser.getUsername());
-//        }
-//
-//        String lastMessage = model.getLastMessage();
-//
-//        if (model.getLastMessageTypeName().equals("image")) {
-//            lastMessage = "Image";
-//        } else if (model.getLastMessageTypeName().equals("text")) {
-//            if (lastMessage.length() > 30) {
-//                lastMessage = lastMessage.substring(0, 30) + "...";
-//            }
-//        }
-//
-//        if (lastMessageSenderIdIsCurrentUser) {
-//            holder.lastMessageText.setText("You: " + lastMessage);
-//        } else {
-//            holder.lastMessageText.setText(lastMessage);
-//        }
-//        holder.lastMessageTime.setText(FirebaseUtil.timestampToString(model.getLastMessageTime()));
-//
-//        holder.itemView.setOnClickListener((v -> {
-//            Intent intent = new Intent(context, ChatActivity.class);
-//            AndroidUtil.passUserModelAsIntent(intent, otherUser);
-//            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//            context.startActivity(intent);
-//        }));
+        Conversation conversation = conversationList.get(i);
+        getUserModelFromConversation(holder, conversation, AndroidUtil.getCurrentUserModel(context).getId());
+    }
+
+    void UpdateHolder(ChatroomModelViewHolder holder, Conversation conversation, UserModel otherUser) {
+        AndroidUtil.setProfilePic(context, Uri.parse(otherUser.getAvatarUrl()), holder.profilePic);
+        holder.usernameText.setText(otherUser.getUsername());
+
+        String lastMessage = "test 1 2 3 43 4";
+
+        holder.lastMessageText.setText(lastMessage);
+
+        holder.lastMessageTime.setText(AndroidUtil.formatTime(conversation.getUpdatedAt()));
+
+        holder.itemView.setOnClickListener((v -> {
+            Intent intent = new Intent(context, ChatActivity.class);
+            AndroidUtil.passUserModelAsIntent(intent, otherUser);
+            String chatroomId = conversation.getId();
+            intent.putExtra("chatroomId", chatroomId);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+        }));
+    }
+
+    private void getUserModelFromConversation(ChatroomModelViewHolder holder, Conversation conversation, String currentUserID) {
+        List<UserModel> otherUser = new ArrayList<>();
+        String accessToken = new DataStorageManager(context).getAccessToken();
+        ApiManager.getInstance(context).getConversations(accessToken, conversation.getId(), new ApiManager.ApiListener() {
+            @Override
+            public void onResponse(JSONObject response) {
+                JSONArray usersArray = response.optJSONArray("users");
+                UserModel otherUserModel = null;
+
+                if (usersArray != null) {
+                    for (int i = 0; i < usersArray.length(); i++) {
+                        JSONObject userObject = usersArray.optJSONObject(i);
+                        if (userObject != null) {
+                            String userId = userObject.optString("id");
+                            otherUserModel = new UserModel();
+                            // Populate the otherUserModel fields with the relevant data from the userObject
+                            // Assuming you have appropriate methods in UserModel to set these values
+                            otherUserModel.setUsername(userObject.optString("username"));
+                            otherUserModel.setPhone(userObject.optString("phone"));
+                            otherUserModel.setId(userId);
+                            otherUserModel.setAvatarUrl(userObject.optString("avatar_url"));
+                            otherUserModel.setRole(userObject.optString("role"));
+                            otherUserModel.setStatus(userObject.optString("status"));
+                            otherUser.add(otherUserModel);
+                            // Set other fields as needed
+                            break; // Break the loop once the other user is found
+                        }
+                    }
+                }
+                if (otherUser.size() > 0) {
+                    UpdateHolder(holder, conversation, otherUser.get(0));
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                // Handle error
+                Toast.makeText(context, new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return conversationList.size();
     }
 
     public void setConversationList(List<Conversation> conversations) {

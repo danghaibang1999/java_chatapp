@@ -14,7 +14,7 @@ import java.util.List;
 
 public class DataStorageManager {
 
-    private static final String PREF_NAME = "chat_app_prefs";
+    private static final String PREF_NAME = "MyPrefs";
     private static final String KEY_CONVERSATIONS = "conversations";
     private static final String KEY_FRIEND_REQUESTS = "friend_requests";
     private static final String KEY_FRIENDS = "friends";
@@ -67,5 +67,9 @@ public class DataStorageManager {
         Type type = new TypeToken<List<Friend>>() {
         }.getType();
         return gson.fromJson(friendsJson, type);
+    }
+
+    public String getAccessToken() {
+        return sharedPreferences.getString("accessToken", "");
     }
 }
