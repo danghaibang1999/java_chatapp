@@ -80,6 +80,31 @@ public class ApiManager {
         makeRequest(Request.Method.POST, "auth/login", requestBody, listener);
     }
 
+    public void logout(String accessToken, final ApiListener listener) {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET,
+                BASE_URL + "auth/logout",
+                null,
+                response -> {
+                    if (listener != null) {
+                        listener.onResponse(response);
+                    }
+                },
+                error -> {
+                    if (listener != null) {
+                        listener.onError(error);
+                    }
+                }) {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Authorization", "Bearer " + accessToken);
+                return headers;
+            }
+        };
+
+        requestQueue.add(jsonObjectRequest);
+    }
+
     public void signUp(String name, String username, String email, String password, String phone, String avatarUrl, final ApiListener listener) {
         // Construct the request body
         JSONObject requestBody = new JSONObject();

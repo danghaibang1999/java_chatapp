@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import com.example.chatapp.models.Conversation;
 import com.example.chatapp.models.Friend;
 import com.example.chatapp.models.FriendRequest;
+import com.example.chatapp.models.UserModel;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -71,5 +72,22 @@ public class DataStorageManager {
 
     public String getAccessToken() {
         return sharedPreferences.getString("accessToken", "");
+    }
+
+    public void clearAll() {
+        sharedPreferences.edit().clear().apply();
+    }
+
+    public UserModel getCurrentUserModel() {
+        UserModel userModel = new UserModel();
+        userModel.setAvatarUrl(sharedPreferences.getString("avatar_url", ""));
+        userModel.setCreatedAt(sharedPreferences.getString("createdAt", ""));
+        userModel.setPhone(sharedPreferences.getString("phone", ""));
+        userModel.setEmail(sharedPreferences.getString("email", ""));
+        userModel.setId(sharedPreferences.getString("id", ""));
+        userModel.setName(sharedPreferences.getString("name", ""));
+        userModel.setLastLoggedIn(sharedPreferences.getString("last_logged_in", ""));
+        userModel.setUsername(sharedPreferences.getString("username", ""));
+        return userModel;
     }
 }

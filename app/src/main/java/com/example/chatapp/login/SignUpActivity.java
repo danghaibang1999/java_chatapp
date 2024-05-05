@@ -21,8 +21,6 @@ import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
 
 public class SignUpActivity extends AppCompatActivity {
-
-    public static final String CREATE_USER_URL = "http://34.92.61.98/api/users";
     ProgressBar progressBar;
     Button signUpBtn;
     EditText usernameInput;

@@ -153,6 +153,7 @@ public class MainActivity extends AppCompatActivity {
                     String role = response.getString("role");
                     String status = response.getString("status");
                     String username = response.getString("username");
+                    String phone = response.getString("phone");
 
                     // Now handle conversations, friend requests, and friends arrays
                     JSONArray conversationsArray = response.optJSONArray("conversations");
@@ -197,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
                     // Save the profile locally
-                    saveProfileLocally(name, email, avatarUrl, id, lastLoggedIn, role, status, username, conversations, friendRequests, friends);
+                    saveProfileLocally(name, email, phone, avatarUrl, id, lastLoggedIn, role, status, username, conversations, friendRequests, friends);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -210,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void saveProfileLocally(String name, String email, String avatarUrl, String id,
+    private void saveProfileLocally(String name, String email, String phone, String avatarUrl, String id,
                                     String lastLoggedIn, String role, String status, String username,
                                     List<Conversation> conversations, List<FriendRequest> friendRequests, List<Friend> friends) {
         // Here you can save the profile information locally using SharedPreferences, Room Database, etc.
@@ -225,6 +226,7 @@ public class MainActivity extends AppCompatActivity {
         editor.putString("role", role);
         editor.putString("status", status);
         editor.putString("username", username);
+        editor.putString("phone", phone);
         // Save conversations, friend requests, and friends using Gson or any other serialization method
         // Then put them into SharedPreferences
         // Initialize DataStorageManager

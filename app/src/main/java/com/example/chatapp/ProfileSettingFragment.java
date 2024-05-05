@@ -11,19 +11,23 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.android.volley.VolleyError;
+import com.example.chatapp.manager.ApiManager;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
+import com.example.chatapp.util.DataStorageManager;
 import com.github.dhaval2404.imagepicker.ImagePicker;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.messaging.FirebaseMessaging;
+
+import org.json.JSONObject;
+
+import java.nio.charset.StandardCharsets;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -71,7 +75,6 @@ public class ProfileSettingFragment extends Fragment {
         progressBar = view.findViewById(R.id.login_progress_bar);
         logoutButton = view.findViewById(R.id.logout_btn);
 
-
         updateProfileButton.setOnClickListener(v -> {
             String username = usernameInput.getText().toString();
             if (username.isEmpty() || username.length() < 3) {
@@ -93,14 +96,23 @@ public class ProfileSettingFragment extends Fragment {
         });
 
         logoutButton.setOnClickListener(v -> {
-            FirebaseMessaging.getInstance().deleteToken().addOnCompleteListener(new OnCompleteListener<Void>() {
+
+            String accessToken = new DataStorageManager(getContext()).getAccessToken();
+            ApiManager.getInstance(getContext()).logout(accessToken, new ApiManager.ApiListener() {
                 @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
-                        Intent intent = new Intent(getContext(), SplashActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                    }
+                public void onResponse(JSONObject response) {
+                    removeUserLocally();
+                    Intent intent = new Intent(getContext(), SplashActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                }
+
+                @Override
+                public void onError(VolleyError error) {
+                    Toast.makeText(getContext(), new String(error.networkResponse.data,
+                                    StandardCharsets.UTF_8),
+                            Toast.LENGTH_LONG).show();
+
                 }
             });
         });
@@ -117,15 +129,26 @@ public class ProfileSettingFragment extends Fragment {
                         }
                     });
         });
-
+        getUserData();
         return view;
+    }
+
+    private void removeUserLocally() {
+        new DataStorageManager(getContext()).clearAll();
     }
 
 
     void getUserData() {
-        // Get user data from Firestore and set it to the views
         setInProgress(true);
-
+        UserModel userModel = new DataStorageManager(getContext()).getCurrentUserModel();
+        if (userModel != null) {
+            usernameInput.setText(userModel.getUsername());
+            phoneInput.setText(userModel.getPhone());
+            AndroidUtil.setProfilePic(getContext(), Uri.parse(userModel.getAvatarUrl()), profileImage);
+        } else {
+            Toast.makeText(getContext(), "User not found", Toast.LENGTH_SHORT).show();
+        }
+        setInProgress(false);
     }
 
     private void setInProgress(boolean isProgress) {
