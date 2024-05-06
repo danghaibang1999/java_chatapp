@@ -12,28 +12,23 @@ import com.example.chatapp.R;
 
 public class ResetPasswordActivity extends AppCompatActivity {
 
-    private EditText newPasswordInput;
-    private EditText confirmPasswordInput;
-    private Button resetPasswordBtn;
-    private ProgressBar progressBar;
+    EditText newPasswordInput;
+    EditText confirmPasswordInput;
+    Button resetPasswordBtn;
+    ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-        initializeViews();
-        setInProgress(false);
-        setupResetPasswordButton();
-    }
 
-    private void initializeViews() {
         newPasswordInput = findViewById(R.id.new_password);
         confirmPasswordInput = findViewById(R.id.confirm_new_password);
         resetPasswordBtn = findViewById(R.id.reset_password_btn);
         progressBar = findViewById(R.id.progress_bar);
-    }
 
-    private void setupResetPasswordButton() {
+        setInProgress(false);
+
         resetPasswordBtn.setOnClickListener(v -> {
             newPasswordInput.setEnabled(false);
             confirmPasswordInput.setEnabled(false);
@@ -41,14 +36,19 @@ public class ResetPasswordActivity extends AppCompatActivity {
             String confirmPassword = confirmPasswordInput.getText().toString();
             resetPassword(newPassword, confirmPassword);
         });
+
+
     }
 
     private void resetPassword(String newPassword, String confirmPassword) {
+        // Reset password logic
         if (newPassword.equals(confirmPassword)) {
-            // Passwords match, proceed with password reset logic
+            // Passwords match
+            // Reset password
             setInProgress(true);
         } else {
-            // Passwords do not match, display error message
+            // Passwords do not match
+            // Show error message
             newPasswordInput.setEnabled(true);
             confirmPasswordInput.setEnabled(true);
             confirmPasswordInput.setError("Passwords do not match");
@@ -57,7 +57,12 @@ public class ResetPasswordActivity extends AppCompatActivity {
     }
 
     private void setInProgress(boolean isProgress) {
-        progressBar.setVisibility(isProgress ? View.VISIBLE : View.GONE);
-        resetPasswordBtn.setVisibility(isProgress ? View.GONE : View.VISIBLE);
+        if (isProgress) {
+            progressBar.setVisibility(View.VISIBLE);
+            resetPasswordBtn.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            resetPasswordBtn.setVisibility(View.VISIBLE);
+        }
     }
 }

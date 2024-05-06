@@ -7,15 +7,15 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupChatroomModel {
-    private String groupChatRoomId;
-    private String groupName;
-    private List<String> listUserIds;
-    private Timestamp lastMessageTime;
-    private String lastMessageSenderId;
-    private String lastMessageSenderUsername;
-    private String lastMessage;
-    private String lastMessageTypeName;
-    private Map<String, String> mapGroupUsernames;
+    String groupChatRoomId;
+    String groupName;
+    List<String> listUserIds;
+    Timestamp lastMessageTime;
+    String lastMessageSenderId;
+    String lastMessageSenderUsername;
+    String lastMessage;
+    String lastMessageTypeName;
+    Map<String, String> mapGroupUsernames;
 
     public GroupChatroomModel() {
         // Required empty public constructor

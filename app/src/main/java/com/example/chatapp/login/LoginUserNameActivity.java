@@ -7,48 +7,80 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.MainActivity;
 import com.example.chatapp.R;
 import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.FirebaseUtil;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 public class LoginUserNameActivity extends AppCompatActivity {
 
-    private EditText userNameInput;
-    private Button letmeInBtn;
-    private ProgressBar progressBar;
-    private String phoneNumber;
-    private UserModel userModel;
+    EditText userNameInput;
+    Button letmeInBtn;
+    ProgressBar progressBar;
+    String phoneNumber;
+    UserModel userModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login_user_name);
-        initializeViews();
-        getUserDetails();
+
+        userNameInput = findViewById(R.id.login_user_name);
+        letmeInBtn = findViewById(R.id.login_let_in_btn);
+        progressBar = findViewById(R.id.login_progress_bar);
+        getUserName();
+
+
+        phoneNumber = getIntent().getExtras().getString("phone");
 
         letmeInBtn.setOnClickListener(v -> setUserName());
     }
 
-    private void initializeViews() {
-        userNameInput = findViewById(R.id.login_user_name);
-        letmeInBtn = findViewById(R.id.login_let_in_btn);
-        progressBar = findViewById(R.id.login_progress_bar);
-        phoneNumber = getIntent().getStringExtra("phone");
+    void setUserName() {
+
+        String userName = userNameInput.getText().toString();
+        if (userName.isEmpty() || userName.length() < 3) {
+            userNameInput.setError("User name is required");
+            return;
+        }
+        setInProgress(true);
+        if (userModel == null) {
+            userModel = new UserModel(phoneNumber, userName, Timestamp.now(), FirebaseUtil.currentUserUid());
+        } else {
+            userModel.setUsername(userName);
+        }
+
+        FirebaseUtil.currentUserDetails().set(userModel).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                setInProgress(false);
+                if (task.isSuccessful()) {
+                    Intent intent = new Intent(LoginUserNameActivity.this, MainActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
+                    finish();
+                }
+            }
+        });
     }
 
-    private void getUserDetails() {
+    void getUserName() {
         setInProgress(true);
-        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(task -> {
-            setInProgress(false);
-            if (task.isSuccessful()) {
-                DocumentSnapshot document = task.getResult();
-                if (document != null && document.exists()) {
-                    userModel = document.toObject(UserModel.class);
+        FirebaseUtil.currentUserDetails().get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                setInProgress(false);
+                if (task.isSuccessful()) {
+                    userModel = task.getResult().toObject(UserModel.class);
                     if (userModel != null) {
                         userNameInput.setText(userModel.getUsername());
                     }
@@ -57,37 +89,13 @@ public class LoginUserNameActivity extends AppCompatActivity {
         });
     }
 
-    private void setUserName() {
-        String userName = userNameInput.getText().toString().trim();
-        if (userName.isEmpty() || userName.length() < 3) {
-            userNameInput.setError("User name is required and should be at least 3 characters");
-            return;
-        }
-
-        setInProgress(true);
-        if (userModel == null) {
-            userModel = new UserModel(phoneNumber, userName, Timestamp.now(), FirebaseUtil.currentUserUid());
-        } else {
-            userModel.setUsername(userName);
-        }
-
-        FirebaseUtil.currentUserDetails().set(userModel).addOnCompleteListener(task -> {
-            setInProgress(false);
-            if (task.isSuccessful()) {
-                navigateToMainActivity();
-            }
-        });
-    }
-
-    private void navigateToMainActivity() {
-        Intent intent = new Intent(LoginUserNameActivity.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
-        finish();
-    }
-
     private void setInProgress(boolean isProgress) {
-        progressBar.setVisibility(isProgress ? View.VISIBLE : View.GONE);
-        letmeInBtn.setVisibility(isProgress ? View.GONE : View.VISIBLE);
+        if (isProgress) {
+            progressBar.setVisibility(View.VISIBLE);
+            letmeInBtn.setVisibility(View.GONE);
+        } else {
+            progressBar.setVisibility(View.GONE);
+            letmeInBtn.setVisibility(View.VISIBLE);
+        }
     }
 }

@@ -16,11 +16,11 @@ import com.google.firebase.firestore.Query;
 
 public class SearchUserActivity extends AppCompatActivity {
 
-    private EditText searchInput;
-    private ImageButton searchButton;
-    private ImageButton backButton;
-    private RecyclerView recyclerView;
-    private SearchUserRecyclerAdapter searchUserRecyclerAdapter;
+    EditText searchInput;
+    ImageButton searchButton;
+    ImageButton backButton;
+    RecyclerView recyclerView;
+    SearchUserRecyclerAdapter searchUserRecyclerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +34,9 @@ public class SearchUserActivity extends AppCompatActivity {
 
         searchInput.requestFocus();
 
-        backButton.setOnClickListener((v -> onBackPressed()));
+        backButton.setOnClickListener((v -> {
+            onBackPressed();
+        }));
 
         searchButton.setOnClickListener((v -> {
             String searchTerm = searchInput.getText().toString();
@@ -46,12 +48,11 @@ public class SearchUserActivity extends AppCompatActivity {
         }));
     }
 
-    private void setupSearchRecyclerView(String searchTerm) {
+    void setupSearchRecyclerView(String searchTerm) {
+
         Query query = FirebaseUtil.allUserCollectionReference().whereGreaterThanOrEqualTo("username", searchTerm);
 
-        FirestoreRecyclerOptions<UserModel> options = new FirestoreRecyclerOptions.Builder<UserModel>()
-                .setQuery(query, UserModel.class)
-                .build();
+        FirestoreRecyclerOptions<UserModel> options = new FirestoreRecyclerOptions.Builder<UserModel>().setQuery(query, UserModel.class).build();
 
         searchUserRecyclerAdapter = new SearchUserRecyclerAdapter(options, getApplicationContext());
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

@@ -11,10 +11,10 @@ public class UserModel {
     private Timestamp createdTimestamp;
     private String userId;
     private String fcmToken;
-    private List<String> chatroomIds;
+
+    private List<String> listChatroomIds;
 
     public UserModel() {
-        // Required empty public constructor
     }
 
     public UserModel(String phone, String username, Timestamp createdTimestamp, String userId) {
@@ -25,14 +25,14 @@ public class UserModel {
     }
 
     public List<String> getChatroomIds() {
-        if (chatroomIds == null) {
-            chatroomIds = new ArrayList<>();
+        if (listChatroomIds == null) {
+            listChatroomIds = new ArrayList<>();
         }
-        return chatroomIds;
+        return listChatroomIds;
     }
 
-    public void setChatroomIds(List<String> chatroomIds) {
-        this.chatroomIds = chatroomIds;
+    public void setListChatroomIds(List<String> chatroomIds) {
+        this.listChatroomIds = chatroomIds;
     }
 
     public void insertChatroomId(String chatroomId) {

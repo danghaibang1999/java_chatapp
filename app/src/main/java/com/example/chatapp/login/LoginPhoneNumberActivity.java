@@ -8,6 +8,7 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.chatapp.R;
@@ -15,35 +16,24 @@ import com.hbb20.CountryCodePicker;
 
 public class LoginPhoneNumberActivity extends AppCompatActivity {
 
-    private CountryCodePicker countryCodePicker;
-    private EditText phoneInput;
-    private Button sendOTPBtn;
-    private ProgressBar progressBar;
-    private TextView forgotPassword;
-    private TextView signUp;
-    private TextView loginWithMail;
+    CountryCodePicker countryCodePicker;
+    EditText phoneInput;
+    Button sendOTPBtn;
+    ProgressBar progressBar;
+    TextView forgotPassword;
+    TextView signUp;
+    TextView loginWithMail;
 
-    private boolean isForgotPassword = false;
+    boolean isForgotPassword = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login_phone_number);
-        initializeViews();
 
         isForgotPassword = getIntent().getBooleanExtra("isForgotPassword", false);
-        handleVisibility();
 
-        forgotPassword.setOnClickListener(v -> navigateToForgotPassword());
-
-        signUp.setOnClickListener(v -> navigateToSignUp());
-
-        loginWithMail.setOnClickListener(v -> navigateToLoginWithEmail());
-
-        sendOTPBtn.setOnClickListener(v -> sendOTP());
-    }
-
-    private void initializeViews() {
         countryCodePicker = findViewById(R.id.login_country_code);
         phoneInput = findViewById(R.id.login_mobile_numbers);
         sendOTPBtn = findViewById(R.id.send_otp_btn);
@@ -51,38 +41,38 @@ public class LoginPhoneNumberActivity extends AppCompatActivity {
         forgotPassword = findViewById(R.id.forgot_password_text_view);
         signUp = findViewById(R.id.sign_up_text_view);
         loginWithMail = findViewById(R.id.login_email_address_text_view);
-    }
 
-    private void handleVisibility() {
-        int visibility = isForgotPassword ? View.GONE : View.VISIBLE;
-        findViewById(R.id.login_phone_number_linear_layout).setVisibility(visibility);
-        forgotPassword.setVisibility(visibility);
-    }
+        findViewById(R.id.login_phone_number_linear_layout).setVisibility(isForgotPassword ? View.GONE : View.VISIBLE);
+        forgotPassword.setVisibility(isForgotPassword ? View.GONE : View.VISIBLE);
+        progressBar.setVisibility(View.GONE);
 
-    private void navigateToForgotPassword() {
-        Intent intent = new Intent(this, LoginPhoneNumberActivity.class);
-        intent.putExtra("isForgotPassword", true);
-        startActivity(intent);
-    }
+        forgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LoginPhoneNumberActivity.class);
+            intent.putExtra("isForgotPassword", true);
+            startActivity(intent);
+        });
 
-    private void navigateToSignUp() {
-        Intent intent = new Intent(this, CreateAccountActivity.class);
-        startActivity(intent);
-    }
+        signUp.setOnClickListener(v -> {
+            Intent intent = new Intent(this, CreateAccountActivity.class);
+            startActivity(intent);
+            // Open sign up activity
+        });
 
-    private void navigateToLoginWithEmail() {
-        Intent intent = new Intent(this, LoginMainScreenActivity.class);
-        startActivity(intent);
-    }
+        loginWithMail.setOnClickListener(v -> {
+            Intent intent = new Intent(this, LoginMainScreenActivity.class);
+            startActivity(intent);
+        });
 
-    private void sendOTP() {
-        if (!countryCodePicker.isValidFullNumber()) {
-            phoneInput.setError("Phone number is not valid");
-            return;
-        }
-        Intent intent = new Intent(LoginPhoneNumberActivity.this, LoginOTPActivity.class);
-        intent.putExtra("isForgotPassword", isForgotPassword);
-        intent.putExtra("phone", countryCodePicker.getFullNumberWithPlus());
-        startActivity(intent);
+        countryCodePicker.registerCarrierNumberEditText(phoneInput);
+        sendOTPBtn.setOnClickListener((v) -> {
+            if (!countryCodePicker.isValidFullNumber()) {
+                phoneInput.setError("Phone number is not valid");
+                return;
+            }
+            Intent intent = new Intent(LoginPhoneNumberActivity.this, LoginOTPActivity.class);
+            intent.putExtra("isForgotPassword", isForgotPassword);
+            intent.putExtra("phone", countryCodePicker.getFullNumberWithPlus());
+            startActivity(intent);
+        });
     }
 }
