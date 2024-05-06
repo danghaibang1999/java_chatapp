@@ -11,6 +11,8 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.request.RequestOptions;
 import com.example.chatapp.models.UserModel;
 
+import java.util.ArrayList;
+
 public class AndroidUtil {
     public static void showToast(Context context, String message) {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show();
@@ -21,7 +23,7 @@ public class AndroidUtil {
         intent.putExtra("phone", userModel.getPhone());
         intent.putExtra("userId", userModel.getUserId());
         intent.putExtra("fcmToken", userModel.getFcmToken());
-        intent.putExtra("listChatroomIds", userModel.getChatroomIds().toArray(new String[0]));
+        intent.putStringArrayListExtra("listChatroomIds", new ArrayList<>(userModel.getChatroomIds()));
     }
 
     public static UserModel getUserModelAsIntent(Intent intent) {
@@ -30,15 +32,22 @@ public class AndroidUtil {
         userModel.setPhone(intent.getStringExtra("phone"));
         userModel.setUserId(intent.getStringExtra("userId"));
         userModel.setFcmToken(intent.getStringExtra("fcmToken"));
-        userModel.setListChatroomIds(intent.getStringArrayListExtra("listChatroomIds"));
+        userModel.setChatroomIds(intent.getStringArrayListExtra("listChatroomIds"));
         return userModel;
     }
 
     public static void setProfilePic(Context context, Uri imageUri, ImageView imageView) {
-        Glide.with(context).load(imageUri).diskCacheStrategy(DiskCacheStrategy.ALL).apply(RequestOptions.circleCropTransform()).into(imageView);
+        Glide.with(context)
+                .load(imageUri)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(RequestOptions.circleCropTransform())
+                .into(imageView);
     }
 
     public static void setChatImage(Context context, Uri imageUrl, ImageView imageView) {
-        Glide.with(context).load(imageUrl).diskCacheStrategy(DiskCacheStrategy.ALL).into(imageView);
+        Glide.with(context)
+                .load(imageUrl)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(imageView);
     }
 }

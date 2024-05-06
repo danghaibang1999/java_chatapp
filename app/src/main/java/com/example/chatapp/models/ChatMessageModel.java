@@ -3,18 +3,18 @@ package com.example.chatapp.models;
 import com.google.firebase.Timestamp;
 
 public class ChatMessageModel {
+    private String chatroomId;
     private String message;
     private String messageType;
     private String senderId;
     private Timestamp timestamp;
-    private String chatroomId;
 
     public ChatMessageModel(String chatroomId, String message, String messageType, String senderId, Timestamp timestamp) {
+        this.chatroomId = chatroomId;
         this.message = message;
+        this.messageType = messageType;
         this.senderId = senderId;
         this.timestamp = timestamp;
-        this.messageType = messageType;
-        this.chatroomId = chatroomId;
     }
 
     public ChatMessageModel() {

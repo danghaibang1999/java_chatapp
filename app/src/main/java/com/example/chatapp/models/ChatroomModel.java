@@ -5,12 +5,12 @@ import com.google.firebase.Timestamp;
 import java.util.List;
 
 public class ChatroomModel {
-    String chatRoomId;
-    List<String> userIds;
-    Timestamp lastMessageTime;
-    String lastMessageSenderId;
-    String lastMessage;
-    String lastMessageTypeName;
+    private String chatRoomId;
+    private List<String> userIds;
+    private Timestamp lastMessageTime;
+    private String lastMessageSenderId;
+    private String lastMessage;
+    private String lastMessageTypeName;
 
     public ChatroomModel() {
         // Required empty public constructor

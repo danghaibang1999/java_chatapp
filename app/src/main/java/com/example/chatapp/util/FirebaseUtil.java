@@ -13,12 +13,16 @@ import java.util.List;
 
 public class FirebaseUtil {
 
+    private static final FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+    private static final FirebaseFirestore firestore = FirebaseFirestore.getInstance();
+    private static final FirebaseStorage storage = FirebaseStorage.getInstance();
+
     public static String currentUserUid() {
-        return FirebaseAuth.getInstance().getUid();
+        return firebaseAuth.getUid();
     }
 
     public static String currentUserName() {
-        return FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+        return firebaseAuth.getCurrentUser().getDisplayName();
     }
 
     public static boolean isUserLoggedIn() {
@@ -26,23 +30,20 @@ public class FirebaseUtil {
     }
 
     public static DocumentReference currentUserDetails() {
-        return FirebaseFirestore.getInstance().collection("users").document(currentUserUid());
+        return firestore.collection("users").document(currentUserUid());
     }
 
     public static CollectionReference allUserCollectionReference() {
-        return FirebaseFirestore.getInstance().collection("users");
+        return firestore.collection("users");
     }
 
     public static DocumentReference getChatroomReference(String chatroomId) {
-        return FirebaseFirestore.getInstance().collection("chatrooms").document(chatroomId);
+        return firestore.collection("chatrooms").document(chatroomId);
     }
 
     public static String getChatroomId(String currentUserId, String otherUserId) {
-        if (currentUserId.compareTo(otherUserId) < 0) {
-            return currentUserId + "_" + otherUserId;
-        } else {
-            return otherUserId + "_" + currentUserId;
-        }
+        return currentUserId.compareTo(otherUserId) < 0 ?
+                currentUserId + "_" + otherUserId : otherUserId + "_" + currentUserId;
     }
 
     public static CollectionReference getChatroomMessagesReference(String chatroomId) {
@@ -50,15 +51,12 @@ public class FirebaseUtil {
     }
 
     public static CollectionReference allChatroomCollectionReference() {
-        return FirebaseFirestore.getInstance().collection("chatrooms");
+        return firestore.collection("chatrooms");
     }
 
     public static DocumentReference getOtherUserFromChatroom(List<String> userIds) {
-        if (userIds.get(0).equals(currentUserUid())) {
-            return allUserCollectionReference().document(userIds.get(1));
-        } else {
-            return allUserCollectionReference().document(userIds.get(0));
-        }
+        String otherUserId = userIds.get(0).equals(currentUserUid()) ? userIds.get(1) : userIds.get(0);
+        return allUserCollectionReference().document(otherUserId);
     }
 
     public static String timestampToString(Timestamp timestamp) {
@@ -66,21 +64,18 @@ public class FirebaseUtil {
     }
 
     public static void logout() {
-        FirebaseAuth.getInstance().signOut();
+        firebaseAuth.signOut();
     }
 
     public static StorageReference getCurrentProfilePicStorageRef() {
-        return FirebaseStorage.getInstance().getReference().child("profile_pics")
-                .child(FirebaseUtil.currentUserUid());
+        return storage.getReference().child("profile_pics").child(currentUserUid());
     }
 
     public static StorageReference getOtherProfilePicStorageRef(String otherUserId) {
-        return FirebaseStorage.getInstance().getReference().child("profile_pics")
-                .child(otherUserId);
+        return storage.getReference().child("profile_pics").child(otherUserId);
     }
 
     public static StorageReference getChatroomImageStorageRef(String chatroomId, String imageId) {
-        return FirebaseStorage.getInstance().getReference().child("chatroom_images")
-                .child(chatroomId).child(imageId);
+        return storage.getReference().child("chatroom_images").child(chatroomId).child(imageId);
     }
 }

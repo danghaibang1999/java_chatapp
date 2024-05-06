@@ -2,7 +2,6 @@ package com.example.chatapp;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -36,14 +35,14 @@ import im.zego.zim.enums.ZIMConnectionState;
 import timber.log.Timber;
 
 public class MainActivity extends AppCompatActivity {
-    BottomNavigationView bottomNavigationView;
-    ImageButton searchButton;
-    ImageButton groupButton;
-    ChatFragment chatFragment;
-    ProfileSettingFragment settingFragment;
-    GroupChatFragment groupFragment;
-    ContactFragment contactFragment;
-    TextView mainToolbarTitle;
+    private BottomNavigationView bottomNavigationView;
+    private ImageButton searchButton;
+    private ImageButton groupButton;
+    private ChatFragment chatFragment;
+    private ProfileSettingFragment settingFragment;
+    private GroupChatFragment groupFragment;
+    private ContactFragment contactFragment;
+    private TextView mainToolbarTitle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +63,9 @@ public class MainActivity extends AppCompatActivity {
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setCancelable(true);
         dialog.setContentView(R.layout.dialog_group_add);
-        groupButton.setOnClickListener(v -> {
-            dialog.show();
-        });
+        groupButton.setOnClickListener(v -> dialog.show());
 
-        searchButton.setOnClickListener((v -> {
-            startActivity(new Intent(MainActivity.this, SearchUserActivity.class));
-        }));
+        searchButton.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, SearchUserActivity.class)));
 
         initCallInviteService(1363654772, "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51", FirebaseUtil.currentUserUid(), FirebaseUtil.currentUserName());
 
@@ -84,16 +79,14 @@ public class MainActivity extends AppCompatActivity {
             } else if (item.getItemId() == R.id.menu_contact) {
                 getSupportFragmentManager().beginTransaction().replace(R.id.main_frame_layout, contactFragment).commit();
             }
+
             mainToolbarTitle.setText(item.getTitle());
-            if (item.getItemId() == R.id.menu_chat || item.getItemId() == R.id.menu_group_chat) {
-                searchButton.setVisibility(View.VISIBLE);
-                groupButton.setVisibility(View.VISIBLE);
-            } else {
-                searchButton.setVisibility(View.GONE);
-                groupButton.setVisibility(View.GONE);
-            }
+            searchButton.setVisibility((item.getItemId() == R.id.menu_chat || item.getItemId() == R.id.menu_group_chat) ? View.VISIBLE : View.GONE);
+            groupButton.setVisibility((item.getItemId() == R.id.menu_chat || item.getItemId() == R.id.menu_group_chat) ? View.VISIBLE : View.GONE);
+
             return true;
         });
+
         bottomNavigationView.setSelectedItemId(R.id.menu_chat);
         getFCMTokens();
     }
@@ -161,23 +154,14 @@ public class MainActivity extends AppCompatActivity {
     @SuppressLint("MissingSuperCall")
     @Override
     public void onBackPressed() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
-        builder.setTitle("Sign Out");
-        builder.setMessage("Are you sure to Sign Out?After Sign out you can't receive offline calls");
-        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-        builder.create().show();
+        new AlertDialog.Builder(MainActivity.this)
+                .setTitle("Sign Out")
+                .setMessage("Are you sure to Sign Out? After Sign out you can't receive offline calls")
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.dismiss();
+                    finish();
+                }).create().show();
     }
 
     public ZegoUIKitPrebuiltCallConfig getConfig(ZegoCallInvitationData invitationData) {
@@ -199,8 +183,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // when use minimize feature,it you swipe close this activity,call endCall()
-        // to make sure call is ended and the float window is dismissed
         ZegoUIKitPrebuiltCallService.endCall();
     }
 }

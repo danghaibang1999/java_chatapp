@@ -18,9 +18,7 @@ import com.example.chatapp.util.FirebaseUtil;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 
-
 public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageModel, ChatRecyclerAdapter.ChatModelViewHolder> {
-
     Context context;
 
     public ChatRecyclerAdapter(@NonNull FirestoreRecyclerOptions<ChatMessageModel> options, Context context) {
@@ -30,20 +28,27 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
 
     @Override
     protected void onBindViewHolder(@NonNull ChatModelViewHolder holder, int position, @NonNull ChatMessageModel model) {
+        // Check if the message is sent by the current user
         if (model.getSenderId().equals(FirebaseUtil.currentUserUid())) {
+            // Hide views for messages sent by the current user
             holder.textLeftChatLayout.setVisibility(View.GONE);
             holder.imageLeftChatLayout.setVisibility(View.GONE);
             holder.leftChatTextview.setVisibility(View.GONE);
             holder.leftChatImageView.setVisibility(View.GONE);
+
+            // Determine message type and display appropriate views
             if (model.getMessageType().equals("image")) {
                 holder.imageRightChatLayout.setVisibility(View.VISIBLE);
                 holder.rightChatImageView.setVisibility(View.VISIBLE);
                 holder.textRightChatLayout.setVisibility(View.GONE);
                 holder.rightChatTextview.setVisibility(View.GONE);
-                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
-                        .addOnCompleteListener(t -> {
-                            if (t.isSuccessful()) {
-                                AndroidUtil.setChatImage(context, t.getResult(), holder.rightChatImageView);
+
+                // Load and display image from Firebase storage
+                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage())
+                        .getDownloadUrl()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                AndroidUtil.setChatImage(context, task.getResult(), holder.rightChatImageView);
                             }
                         });
             } else if (model.getMessageType().equals("text")) {
@@ -53,28 +58,37 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
                 holder.textRightChatLayout.setVisibility(View.VISIBLE);
                 holder.rightChatTextview.setText(model.getMessage());
             }
+
+            // Display current user's profile picture
             holder.leftProfilePic.setVisibility(View.GONE);
             holder.rightProfilePic.setVisibility(View.VISIBLE);
-            FirebaseUtil.getCurrentProfilePicStorageRef().getDownloadUrl()
-                    .addOnCompleteListener(t -> {
-                        if (t.isSuccessful()) {
-                            AndroidUtil.setProfilePic(context, t.getResult(), holder.rightProfilePic);
+            FirebaseUtil.getCurrentProfilePicStorageRef()
+                    .getDownloadUrl()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            AndroidUtil.setProfilePic(context, task.getResult(), holder.rightProfilePic);
                         }
                     });
         } else {
+            // Hide views for messages sent by other users
             holder.textRightChatLayout.setVisibility(View.GONE);
             holder.imageRightChatLayout.setVisibility(View.GONE);
             holder.rightChatTextview.setVisibility(View.GONE);
             holder.rightChatImageView.setVisibility(View.GONE);
+
+            // Determine message type and display appropriate views
             if (model.getMessageType().equals("image")) {
                 holder.imageLeftChatLayout.setVisibility(View.VISIBLE);
                 holder.leftChatImageView.setVisibility(View.VISIBLE);
                 holder.textLeftChatLayout.setVisibility(View.GONE);
                 holder.leftChatTextview.setVisibility(View.GONE);
-                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
-                        .addOnCompleteListener(t -> {
-                            if (t.isSuccessful()) {
-                                AndroidUtil.setChatImage(context, t.getResult(), holder.leftChatImageView);
+
+                // Load and display image from Firebase storage
+                FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage())
+                        .getDownloadUrl()
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                AndroidUtil.setChatImage(context, task.getResult(), holder.leftChatImageView);
                             }
                         });
             } else if (model.getMessageType().equals("text")) {
@@ -84,13 +98,15 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
                 holder.leftChatImageView.setVisibility(View.GONE);
                 holder.leftChatTextview.setText(model.getMessage());
             }
+
+            // Display profile picture of the sender
             holder.rightProfilePic.setVisibility(View.GONE);
             holder.leftProfilePic.setVisibility(View.VISIBLE);
-
-            FirebaseUtil.getOtherProfilePicStorageRef(model.getSenderId()).getDownloadUrl()
-                    .addOnCompleteListener(t -> {
-                        if (t.isSuccessful()) {
-                            AndroidUtil.setProfilePic(context, t.getResult(), holder.leftProfilePic);
+            FirebaseUtil.getOtherProfilePicStorageRef(model.getSenderId())
+                    .getDownloadUrl()
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()) {
+                            AndroidUtil.setProfilePic(context, task.getResult(), holder.leftProfilePic);
                         }
                     });
         }
@@ -99,7 +115,7 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
     @NonNull
     @Override
     public ChatModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.chat_message_recycler_row, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.chat_message_recycler_row, parent, false);
         return new ChatModelViewHolder(view);
     }
 
