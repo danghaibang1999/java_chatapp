@@ -246,14 +246,16 @@ public class ChatActivity extends AppCompatActivity {
             for (int i = 0; i < (chatList != null ? chatList.length() : 0); i++) {
                 JSONObject chatObject = chatList.getJSONObject(i);
                 String messageId = chatObject.getString("id");
-                String message = chatObject.getString("message");
+                String message = chatObject.optString("message");
                 String fromUserId = chatObject.getString("from");
                 String toUserId = chatObject.getString("to");
                 String timestamp = chatObject.getString("timestamp");
 
-                // Create a ChatMessage object and add it to the list
-                ChatMessageModel chatMessage = new ChatMessageModel(toUserId, message, "text", fromUserId, timestamp);
-                chatMessages.add(chatMessage);
+                if (!message.isEmpty()) {
+                    // Create a ChatMessage object and add it to the list
+                    ChatMessageModel chatMessage = new ChatMessageModel(toUserId, message, "text", fromUserId, timestamp);
+                    chatMessages.add(chatMessage);
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -279,7 +281,6 @@ public class ChatActivity extends AppCompatActivity {
                 super.onOpen(webSocket, response);
                 ChatActivity.this.webSocket = webSocket;
                 // Send a message to subscribe to new chat events
-                subscribeToNewChatEvents();
             }
 
             @Override
@@ -339,35 +340,6 @@ public class ChatActivity extends AppCompatActivity {
 
         } catch (JSONException e) {
             e.printStackTrace();
-        }
-    }
-
-    private void subscribeToNewChatEvents() {
-        if (webSocket != null && (chatroomId != null && chatroomId.isEmpty())) {
-            // Construct the message to subscribe to new chat events
-            JSONObject subscribeMessage = new JSONObject();
-            JSONObject chatData = new JSONObject();
-            try {
-                subscribeMessage.put("type", "");
-
-                chatData.put("from", "");
-                chatData.put("to", "");
-                chatData.put("message", "");
-
-                subscribeMessage.put("chat", chatData);
-                subscribeMessage.put("type", "newChat");
-                JSONArray listUser = new JSONArray();
-                // Add user IDs to the list_user array
-                // For example, if you're creating a conversation with user IDs userId1 and userId2
-                listUser.put(otherUser.getId());
-                listUser.put(AndroidUtil.getCurrentUserModel(this).getId());
-                subscribeMessage.put("list_user", listUser);
-            } catch (JSONException e) {
-                Toast.makeText(this, "Error subscribing to new chat events", Toast.LENGTH_SHORT).show();
-            }
-            // Send the message over WebSocket
-            sendMessage(subscribeMessage.toString());
-            updateChatroomId();
         }
     }
 

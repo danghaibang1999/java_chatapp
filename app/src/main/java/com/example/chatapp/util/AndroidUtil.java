@@ -56,8 +56,8 @@ public class AndroidUtil {
 
     // Method to convert timestamp string to hh:mm format
     public static String formatTime(String timestamp) {
-        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault());
-        SimpleDateFormat outputFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("hh:mm", Locale.getDefault());
 
         try {
             Date date = inputFormat.parse(timestamp);

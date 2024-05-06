@@ -64,13 +64,12 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         }));
     }
 
-    @NonNull
     private void getChatroomId(String userId, String currentUserId, Intent intent) {
         DataStorageManager dataStorageManager = new DataStorageManager(context);
         String accessToken = dataStorageManager.getAccessToken();
         List<Conversation> conversations = dataStorageManager.getConversations();
         List<String> conversationIds = new ArrayList<>();
-        if (conversations == null || conversations.size() == 0) {
+        if (conversations == null || conversations.isEmpty()) {
             return;
         }
         for (Conversation conversation : conversations) {
@@ -101,6 +100,10 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
                     // Check if both otherUserId and currentUserId are found in the list
                     if (foundOtherUserId && foundCurrentUserId) {
                         intent.putExtra("chatroomId", conversationId);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    } else if (conversation.equals(conversations.get(conversations.size() - 1))) {
+                        intent.putExtra("chatroomId", "");
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }
