@@ -1,5 +1,6 @@
 package com.example.chatapp.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -46,12 +47,13 @@ public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRe
     }
 
     void UpdateHolder(ChatroomModelViewHolder holder, Conversation conversation, UserModel otherUser) {
+        if (otherUser == null) {
+            return;
+        }
         AndroidUtil.setProfilePic(context, Uri.parse(otherUser.getAvatarUrl()), holder.profilePic);
         holder.usernameText.setText(otherUser.getUsername());
 
-        String lastMessage = "test 1 2 3 43 4";
-
-        holder.lastMessageText.setText(lastMessage);
+//        holder.lastMessageText.setText(lastMessage);
 
         holder.lastMessageTime.setText(AndroidUtil.formatTime(conversation.getUpdatedAt()));
 
@@ -77,7 +79,7 @@ public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRe
                 if (usersArray != null) {
                     for (int i = 0; i < usersArray.length(); i++) {
                         JSONObject userObject = usersArray.optJSONObject(i);
-                        if (userObject != null) {
+                        if (userObject != null && !userObject.optString("id").equals(currentUserID)) {
                             String userId = userObject.optString("id");
                             otherUserModel = new UserModel();
                             // Populate the otherUserModel fields with the relevant data from the userObject
@@ -94,9 +96,7 @@ public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRe
                         }
                     }
                 }
-                if (otherUser.size() > 0) {
-                    UpdateHolder(holder, conversation, otherUser.get(0));
-                }
+                UpdateHolder(holder, conversation, otherUser.isEmpty() ? null : otherUser.get(0));
             }
 
             @Override
@@ -112,28 +112,35 @@ public class RecentChatRecyclerAdapter extends RecyclerView.Adapter<RecentChatRe
         return conversationList.size();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setConversationList(List<Conversation> conversations) {
         this.conversationList = conversations;
         notifyDataSetChanged();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
+    public void addConversation(Conversation conversation) {
+        conversationList.add(conversation);
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
-    public RecentChatRecyclerAdapter.ChatroomModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ChatroomModelViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(context).inflate(R.layout.recent_chat_recycler_row, parent, false);
         return new ChatroomModelViewHolder(view);
     }
 
-    class ChatroomModelViewHolder extends RecyclerView.ViewHolder {
+    static class ChatroomModelViewHolder extends RecyclerView.ViewHolder {
         TextView usernameText;
-        TextView lastMessageText;
+        //        TextView lastMessageText;
         TextView lastMessageTime;
         ImageView profilePic;
 
         public ChatroomModelViewHolder(@NonNull View itemView) {
             super(itemView);
             usernameText = itemView.findViewById(R.id.user_name_text);
-            lastMessageText = itemView.findViewById(R.id.last_message_text);
+//            lastMessageText = itemView.findViewById(R.id.last_message_text);
             lastMessageTime = itemView.findViewById(R.id.last_message_time_text);
             profilePic = itemView.findViewById(R.id.profile_pic_image_view);
         }

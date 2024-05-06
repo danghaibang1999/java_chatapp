@@ -15,12 +15,15 @@ import com.android.volley.VolleyError;
 import com.example.chatapp.adapter.RecentChatRecyclerAdapter;
 import com.example.chatapp.manager.ApiManager;
 import com.example.chatapp.models.Conversation;
+import com.example.chatapp.models.UserModel;
 import com.example.chatapp.util.AndroidUtil;
+import com.example.chatapp.util.DataStorageManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,8 +54,8 @@ public class ChatFragment extends Fragment {
     }
 
     private void fetchChatroomModelsAndUpdateList() {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("MyPrefs", 0);
-        String userId = AndroidUtil.getCurrentUserModel(getContext()).getId();
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("MyPrefs", 0);
+        String userId = AndroidUtil.getCurrentUserModel(requireContext()).getId();
         String accessToken = sharedPreferences.getString("accessToken", null);
         if (accessToken == null || accessToken.isEmpty()) {
             Toast.makeText(getContext(), "User not logged in", Toast.LENGTH_SHORT).show();
@@ -76,7 +79,7 @@ public class ChatFragment extends Fragment {
                             conversation.setUpdatedAt(convObject.getString("updated_at"));
                             conversations.add(conversation);
                         }
-                        recentChatRecyclerAdapter.setConversationList(conversations);
+                        filterConversations(conversations);
                     } catch (JSONException e) {
                         throw new RuntimeException(e);
                     }
@@ -88,6 +91,36 @@ public class ChatFragment extends Fragment {
                 }
             });
         }
+    }
 
+    private void filterConversations(List<Conversation> conversations) {
+        String currentUserID = new DataStorageManager(requireContext()).getCurrentUserModel().getId();
+        for (Conversation conversation : conversations) {
+            List<UserModel> otherUser = new ArrayList<>();
+            String accessToken = new DataStorageManager(requireContext()).getAccessToken();
+            ApiManager.getInstance(requireContext()).getConversations(accessToken, conversation.getId(), new ApiManager.ApiListener() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    JSONArray usersArray = response.optJSONArray("users");
+                    UserModel otherUserModel = null;
+
+                    if (usersArray != null) {
+                        for (int i = 0; i < usersArray.length(); i++) {
+                            JSONObject userObject = usersArray.optJSONObject(i);
+                            if (userObject != null && !userObject.optString("id").equals(currentUserID)) {
+                                recentChatRecyclerAdapter.addConversation(conversation);
+                                break; // Break the loop once the other user is found
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onError(VolleyError error) {
+                    // Handle error
+                    Toast.makeText(getContext(), new String(error.networkResponse.data, StandardCharsets.UTF_8), Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 }

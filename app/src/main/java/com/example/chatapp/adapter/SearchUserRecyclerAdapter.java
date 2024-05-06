@@ -1,5 +1,6 @@
 package com.example.chatapp.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -112,7 +113,7 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
                 }
             });
         }
-        if (conversationIds.size() > 0) {
+        if (!conversationIds.isEmpty()) {
             return conversationIds.get(0);
         } else {
             return "";
@@ -124,6 +125,7 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         return userModelList.size(); // Return the size of userModelList
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setUserModelList(List<UserModel> userModelList) {
         this.userModelList = userModelList;
         notifyDataSetChanged();

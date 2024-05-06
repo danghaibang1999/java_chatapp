@@ -1,5 +1,6 @@
 package com.example.chatapp.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.Uri;
 import android.view.LayoutInflater;
@@ -94,11 +95,13 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
         return chatMessageModels.size();
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void addItem(ChatMessageModel messageModel) {
-        chatMessageModels.add(messageModel);
-        notifyDataSetChanged();
+        chatMessageModels.add(0, messageModel);
+        notifyItemInserted(0);
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     public void setChatMessageModels(List<ChatMessageModel> chatMessageModels) {
         this.chatMessageModels = chatMessageModels;
         notifyDataSetChanged();

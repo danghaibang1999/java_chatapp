@@ -76,7 +76,7 @@ public class AndroidUtil {
         UserModel userModel = new UserModel();
         userModel.setUsername(intent.getStringExtra("username"));
         userModel.setPhone(intent.getStringExtra("phone"));
-        userModel.setId(intent.getStringExtra("userId"));
+        userModel.setId(intent.getStringExtra("id"));
         userModel.setAvatarUrl(intent.getStringExtra("avatar_url"));
         userModel.setRole(intent.getStringExtra("role"));
         userModel.setStatus(intent.getStringExtra("status"));

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/recent_chat_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/edit_text_rounded_corner">
@@ -38,11 +39,11 @@
                 android:text="10:00" />
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/last_message_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hello! How are you?" />
+        <!--        <TextView-->
+        <!--            android:id="@+id/last_message_text"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="Hello! How are you?" />-->
 
     </LinearLayout>
 

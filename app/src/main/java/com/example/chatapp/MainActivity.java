@@ -199,6 +199,12 @@ public class MainActivity extends AppCompatActivity {
 
                     // Save the profile locally
                     saveProfileLocally(name, email, phone, avatarUrl, id, lastLoggedIn, role, status, username, conversations, friendRequests, friends);
+                    initCallInviteService(
+                            1363654772,
+                            "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51",
+                            id,
+                            username
+                    );
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -254,12 +260,6 @@ public class MainActivity extends AppCompatActivity {
                 currentUser.setStatus(response.getString("status"));
                 currentUser.setUsername(response.getString("username"));
                 currentUser.setAvatarUrl(response.getString("avatar_url"));
-                initCallInviteService(
-                        1363654772,
-                        "64b6d2ac0af446ebcb8e737c8e03512bdbe3bbb09c4ee655094da8daef0acb51",
-                        currentUser.getId(),
-                        currentUser.getUsername()
-                );
                 bottomNavigationView.setSelectedItemId(R.id.menu_chat);
             } else {
                 Toast.makeText(MainActivity.this, "Invalid user cell or password", Toast.LENGTH_LONG).show();
