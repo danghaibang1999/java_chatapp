@@ -58,6 +58,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
 //            }
 
             holder.imageRightChatLayout.setVisibility(View.GONE);
+            holder.textRightChatLayout.setVisibility(View.VISIBLE);
             holder.rightChatImageView.setVisibility(View.GONE);
             holder.rightChatTextview.setVisibility(View.VISIBLE);
             holder.rightChatTextview.setText(model.getMessage());
@@ -80,6 +81,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
 //            }
 
             holder.imageLeftChatLayout.setVisibility(View.GONE);
+            holder.rightChatTextview.setVisibility(View.GONE);
             holder.textLeftChatLayout.setVisibility(View.VISIBLE);
             holder.leftChatTextview.setVisibility(View.VISIBLE);
             holder.leftChatTextview.setText(model.getMessage());
@@ -99,6 +101,7 @@ public class ChatRecyclerAdapter extends RecyclerView.Adapter<ChatRecyclerAdapte
     public void addItem(ChatMessageModel messageModel) {
         chatMessageModels.add(0, messageModel);
         notifyItemInserted(0);
+        notifyDataSetChanged();
     }
 
     @SuppressLint("NotifyDataSetChanged")

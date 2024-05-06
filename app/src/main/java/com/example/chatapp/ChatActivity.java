@@ -42,7 +42,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -170,6 +169,8 @@ public class ChatActivity extends AppCompatActivity {
             sendChatMessage(message, chatroomId, AndroidUtil.getCurrentUserModel(this).getId());
 
             ChatMessageModel chatMessageModel = new ChatMessageModel();
+            chatMessageModel.setChatroomId(chatroomId);
+            chatMessageModel.setMessageType("text");
             chatMessageModel.setMessage(message);
             chatMessageModel.setSenderId(AndroidUtil.getCurrentUserModel(this).getId());
             chatMessageModel.setTimestamp(new Timestamp(System.currentTimeMillis()).toString());
@@ -195,12 +196,14 @@ public class ChatActivity extends AppCompatActivity {
 
     private void setupChatRecyclerView() {
 
+        // Initialize the RecyclerView and adapter
         chatRecyclerAdapter = new ChatRecyclerAdapter(new ArrayList<>(), otherUser, getApplicationContext());
-        LinearLayoutManager manager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true);
-        manager.setReverseLayout(true);
-        manager.setStackFromEnd(true);
-        recyclerView.setLayoutManager(manager);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setReverseLayout(true);
+        recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(chatRecyclerAdapter);
+        recyclerView.smoothScrollToPosition(0);
+
         chatRecyclerAdapter.registerAdapterDataObserver(new RecyclerView.AdapterDataObserver() {
             @Override
             public void onItemRangeInserted(int positionStart, int itemCount) {
@@ -208,9 +211,11 @@ public class ChatActivity extends AppCompatActivity {
             }
         });
 
+// Optionally, fetch chat messages if chatroomId is not empty
         if (!chatroomId.isEmpty()) {
-            getChatMessages(1, 20, "desc", "");
+            getChatMessages(1, 20, "desc", ""); // Fetch chat messages
         }
+
     }
 
     private void getChatMessages(int page, int pageSize, String sortType, String search) {
@@ -223,7 +228,6 @@ public class ChatActivity extends AppCompatActivity {
             public void onResponse(JSONObject response) {
                 // Parse the response and update the adapter with chat messages
                 List<ChatMessageModel> chatMessages = parseChatMessages(response);
-                Collections.reverse(chatMessages);
                 chatRecyclerAdapter.setChatMessageModels(chatMessages);
             }
 
@@ -248,7 +252,7 @@ public class ChatActivity extends AppCompatActivity {
                 String timestamp = chatObject.getString("timestamp");
 
                 // Create a ChatMessage object and add it to the list
-                ChatMessageModel chatMessage = new ChatMessageModel(messageId, message, fromUserId, toUserId, timestamp);
+                ChatMessageModel chatMessage = new ChatMessageModel(toUserId, message, "text", fromUserId, timestamp);
                 chatMessages.add(chatMessage);
             }
         } catch (JSONException e) {
@@ -281,8 +285,33 @@ public class ChatActivity extends AppCompatActivity {
             @Override
             public void onMessage(@NotNull WebSocket webSocket, @NotNull String text) {
                 super.onMessage(webSocket, text);
-                // Handle incoming messages
-                handleMessage(text);
+
+                try {
+                    JSONObject response = new JSONObject(text);
+
+                    // Check if the response contains an error code
+                    if (response.has("Code")) {
+                        int errorCode = response.getInt("Code");
+
+                        // Handle the error based on the error code
+                        switch (errorCode) {
+                            case 50003:
+                                // Handle error code 50003
+                                // For example, show an error message to the user
+                                Toast.makeText(ChatActivity.this, "Error code 50003", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                // Handle other error codes
+                                break;
+                        }
+                    } else {
+                        // Handle other types of messages
+                        handleRegularChatMessage(response);
+                    }
+                } catch (JSONException e) {
+                    // Handle JSON parsing error
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -292,6 +321,25 @@ public class ChatActivity extends AppCompatActivity {
         };
 
         webSocket = client.newWebSocket(request, webSocketListener);
+    }
+
+    private void handleRegularChatMessage(JSONObject messageObject) {
+        try {
+            JSONObject chatData = messageObject.getJSONObject("chat");
+            String fromUserId = chatData.getString("from");
+            String toConversationId = chatData.getString("to");
+            String message = chatData.getString("message");
+
+            // Process the chat message data as needed
+            // For example, you can update the UI to display the chat message
+
+            // Optionally, you can also handle other data in the message object
+            ChatMessageModel messageModel = new ChatMessageModel(toConversationId, message, "text", fromUserId, com.google.firebase.Timestamp.now().toString());
+            chatRecyclerAdapter.addItem(messageModel);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void subscribeToNewChatEvents() {
@@ -395,12 +443,6 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
-    private void handleMessage(String message) {
-        // Handle incoming messages here
-        // For example, update the UI with the received message
-        chatRecyclerAdapter.addItem(new ChatMessageModel(chatroomId, message, "text", otherUser.getId(), com.google.firebase.Timestamp.now().toString()));
-    }
-
     private void sendMessage(String message) {
         if (webSocket != null) {
             webSocket.send(message);
@@ -419,6 +461,7 @@ public class ChatActivity extends AppCompatActivity {
             chatData.put("message", message);
 
             newChatMessage.put("chat", chatData);
+            newChatMessage.put("list_user", new JSONArray());
 
             // Check if it's a new conversation
             if (conversationId == null || conversationId.isEmpty()) {

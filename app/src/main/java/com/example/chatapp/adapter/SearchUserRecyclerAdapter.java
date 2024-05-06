@@ -60,21 +60,18 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         holder.itemView.setOnClickListener((v -> {
             Intent intent = new Intent(context, ChatActivity.class);
             AndroidUtil.passUserModelAsIntent(intent, userModel);
-            String chatroomId = getChatroomId(userModel.getId(), AndroidUtil.getCurrentUserModel(context).getId());
-            intent.putExtra("chatroomId", chatroomId);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
+            getChatroomId(userModel.getId(), AndroidUtil.getCurrentUserModel(context).getId(), intent);
         }));
     }
 
     @NonNull
-    private String getChatroomId(String userId, String currentUserId) {
+    private void getChatroomId(String userId, String currentUserId, Intent intent) {
         DataStorageManager dataStorageManager = new DataStorageManager(context);
         String accessToken = dataStorageManager.getAccessToken();
         List<Conversation> conversations = dataStorageManager.getConversations();
         List<String> conversationIds = new ArrayList<>();
         if (conversations == null || conversations.size() == 0) {
-            return "";
+            return;
         }
         for (Conversation conversation : conversations) {
             String conversationId = conversation.getId();
@@ -103,7 +100,9 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
 
                     // Check if both otherUserId and currentUserId are found in the list
                     if (foundOtherUserId && foundCurrentUserId) {
-                        conversations.add(conversation);
+                        intent.putExtra("chatroomId", conversationId);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
                     }
                 }
 
@@ -112,11 +111,6 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
 
                 }
             });
-        }
-        if (!conversationIds.isEmpty()) {
-            return conversationIds.get(0);
-        } else {
-            return "";
         }
     }
 
