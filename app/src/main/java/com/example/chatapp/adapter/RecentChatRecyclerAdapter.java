@@ -38,6 +38,9 @@ public class RecentChatRecyclerAdapter extends FirestoreRecyclerAdapter<Chatroom
                         boolean lastMessageSenderIdIsCurrentUser = model.getLastMessageSenderId().equals(FirebaseUtil.currentUserUid());
                         UserModel otherUser = task.getResult().toObject(UserModel.class);
 
+                        if (otherUser == null) {
+                            return;
+                        }
                         FirebaseUtil.getOtherProfilePicStorageRef(otherUser.getUserId()).getDownloadUrl()
                                 .addOnCompleteListener(t -> {
                                     if (t.isSuccessful()) {

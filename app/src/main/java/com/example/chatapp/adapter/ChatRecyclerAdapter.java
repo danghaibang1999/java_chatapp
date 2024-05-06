@@ -33,9 +33,13 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
         if (model.getSenderId().equals(FirebaseUtil.currentUserUid())) {
             holder.textLeftChatLayout.setVisibility(View.GONE);
             holder.imageLeftChatLayout.setVisibility(View.GONE);
+            holder.leftChatTextview.setVisibility(View.GONE);
+            holder.leftChatImageView.setVisibility(View.GONE);
             if (model.getMessageType().equals("image")) {
                 holder.imageRightChatLayout.setVisibility(View.VISIBLE);
+                holder.rightChatImageView.setVisibility(View.VISIBLE);
                 holder.textRightChatLayout.setVisibility(View.GONE);
+                holder.rightChatTextview.setVisibility(View.GONE);
                 FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
                         .addOnCompleteListener(t -> {
                             if (t.isSuccessful()) {
@@ -46,6 +50,7 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
                 holder.imageRightChatLayout.setVisibility(View.GONE);
                 holder.rightChatImageView.setVisibility(View.GONE);
                 holder.rightChatTextview.setVisibility(View.VISIBLE);
+                holder.textRightChatLayout.setVisibility(View.VISIBLE);
                 holder.rightChatTextview.setText(model.getMessage());
             }
             holder.leftProfilePic.setVisibility(View.GONE);
@@ -59,9 +64,13 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
         } else {
             holder.textRightChatLayout.setVisibility(View.GONE);
             holder.imageRightChatLayout.setVisibility(View.GONE);
+            holder.rightChatTextview.setVisibility(View.GONE);
+            holder.rightChatImageView.setVisibility(View.GONE);
             if (model.getMessageType().equals("image")) {
                 holder.imageLeftChatLayout.setVisibility(View.VISIBLE);
+                holder.leftChatImageView.setVisibility(View.VISIBLE);
                 holder.textLeftChatLayout.setVisibility(View.GONE);
+                holder.leftChatTextview.setVisibility(View.GONE);
                 FirebaseUtil.getChatroomImageStorageRef(model.getChatroomId(), model.getMessage()).getDownloadUrl()
                         .addOnCompleteListener(t -> {
                             if (t.isSuccessful()) {
@@ -72,6 +81,7 @@ public class ChatRecyclerAdapter extends FirestoreRecyclerAdapter<ChatMessageMod
                 holder.imageLeftChatLayout.setVisibility(View.GONE);
                 holder.textLeftChatLayout.setVisibility(View.VISIBLE);
                 holder.leftChatTextview.setVisibility(View.VISIBLE);
+                holder.leftChatImageView.setVisibility(View.GONE);
                 holder.leftChatTextview.setText(model.getMessage());
             }
             holder.rightProfilePic.setVisibility(View.GONE);
