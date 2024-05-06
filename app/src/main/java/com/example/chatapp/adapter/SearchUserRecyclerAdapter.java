@@ -70,13 +70,20 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
         List<Conversation> conversations = dataStorageManager.getConversations();
         List<String> conversationIds = new ArrayList<>();
         if (conversations == null || conversations.isEmpty()) {
+            intent.putExtra("chatroomId", "");
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
             return;
         }
-        for (Conversation conversation : conversations) {
+        final int size = conversations.size();
+        final int[] count = {0};
+        for (final int[] i = {0}; i[0] < conversations.size(); i[0]++) {
+            Conversation conversation = conversations.get(i[0]);
             String conversationId = conversation.getId();
             ApiManager.getInstance(context).getConversations(accessToken, conversationId, new ApiManager.ApiListener() {
                 @Override
                 public void onResponse(JSONObject response) {
+                    count[0]++;
                     String conversationId = response.optString("id");
                     JSONArray usersArray = response.optJSONArray("users");
 
@@ -102,7 +109,7 @@ public class SearchUserRecyclerAdapter extends RecyclerView.Adapter<SearchUserRe
                         intent.putExtra("chatroomId", conversationId);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
-                    } else if (conversation.equals(conversations.get(conversations.size() - 1))) {
+                    } else if (size == count[0]) {
                         intent.putExtra("chatroomId", "");
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);

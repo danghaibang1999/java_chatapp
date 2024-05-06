@@ -16,9 +16,6 @@ import com.android.volley.VolleyError;
 import com.example.chatapp.R;
 import com.example.chatapp.manager.ApiManager;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.nio.charset.StandardCharsets;
 
 public class LoginForgotPasswordActivity extends AppCompatActivity {
@@ -61,26 +58,22 @@ public class LoginForgotPasswordActivity extends AppCompatActivity {
         String email = emailInput.getText().toString();
         // Send OTP to email
         ApiManager apiManager = ApiManager.getInstance(this);
-        apiManager.requestOTP(email, new ApiManager.ApiListener() {
+        apiManager.requestOTPStringRequest(email, new ApiManager.ApiStringListener() {
 
             @Override
-            public void onResponse(JSONObject response) {
-                try {
-                    if ("ok".equals(response.getString("msg"))) {
+            public void onResponse(String response) {
+                if (response.equals("OK")) {
 
-                        Intent intent = new Intent(LoginForgotPasswordActivity.this,
-                                ResetPasswordActivity.class);
-                        intent.putExtra("email", email);
-                        startActivity(intent);
+                    Intent intent = new Intent(LoginForgotPasswordActivity.this,
+                            ResetPasswordActivity.class);
+                    intent.putExtra("email", email);
+                    startActivity(intent);
 
-                    } else {
-                        // If the server response is not success
-                        // Displaying an error message on toast
-                        Toast.makeText(LoginForgotPasswordActivity.this,
-                                "Invalid Information input", Toast.LENGTH_LONG).show();
-                    }
-                } catch (JSONException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    // If the server response is not success
+                    // Displaying an error message on toast
+                    Toast.makeText(LoginForgotPasswordActivity.this,
+                            "Invalid Information input", Toast.LENGTH_LONG).show();
                 }
             }
 

@@ -6,11 +6,14 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,6 +56,36 @@ public class ApiManager {
         requestQueue.add(jsonObjectRequest);
     }
 
+    public void makeStringRequest(int method, String endpoint, final String requestBody, final ApiStringListener listener) {
+        StringRequest stringRequest = new StringRequest(method,
+                BASE_URL + endpoint,
+                response -> {
+                    if (listener != null) {
+                        listener.onResponse(response);
+                    }
+                },
+                error -> {
+                    if (listener != null) {
+                        listener.onError(error);
+                    }
+                }) {
+            @Override
+            public byte[] getBody() {
+                return requestBody == null ? null : requestBody.getBytes(StandardCharsets.UTF_8);
+            }
+
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> headers = new HashMap<>();
+                headers.put("Content-Type", "application/json; charset=utf-8");
+                return headers;
+            }
+        };
+
+        requestQueue.add(stringRequest);
+    }
+
+
     // Method to handle OTP request
     public void requestOTP(String email, final ApiListener listener) {
         JSONObject requestBody = new JSONObject();
@@ -65,6 +98,36 @@ public class ApiManager {
 
         makeRequest(Request.Method.POST, "otps/request", requestBody, listener);
     }
+
+    public void requestOTPStringRequest(String email, final ApiStringListener listener) {
+        JSONObject requestBody = new JSONObject();
+        try {
+            requestBody.put("email", email);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return;
+        }
+
+        // Convert the JSONObject to a string
+        final String requestBodyString = requestBody.toString();
+
+        makeStringRequest(Request.Method.POST, "otps/request", requestBodyString, new ApiStringListener() {
+            @Override
+            public void onResponse(String response) {
+                if (listener != null) {
+                    listener.onResponse(response);
+                }
+            }
+
+            @Override
+            public void onError(VolleyError error) {
+                if (listener != null) {
+                    listener.onError(error);
+                }
+            }
+        });
+    }
+
 
     // Method to handle login API
     public void login(String usernameOrEmail, String password, final ApiListener listener) {
@@ -310,6 +373,12 @@ public class ApiManager {
     // Define an interface for API callbacks
     public interface ApiListener {
         void onResponse(JSONObject response);
+
+        void onError(VolleyError error);
+    }
+
+    public interface ApiStringListener {
+        void onResponse(String response);
 
         void onError(VolleyError error);
     }

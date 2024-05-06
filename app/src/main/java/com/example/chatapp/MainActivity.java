@@ -74,12 +74,10 @@ public class MainActivity extends AppCompatActivity {
         if (accessToken == null) {
             startActivity(new Intent(MainActivity.this, LoginAddressActivity.class));
             finish();
-            return;
         } else {
             // Fetch current user profile
             getCurrentUserProfile(accessToken);
         }
-        bottomNavigationView.setSelectedItemId(R.id.menu_chat);
     }
 
     private void initializeViews() {
@@ -205,6 +203,7 @@ public class MainActivity extends AppCompatActivity {
                             id,
                             username
                     );
+                    bottomNavigationView.setSelectedItemId(R.id.menu_chat);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
